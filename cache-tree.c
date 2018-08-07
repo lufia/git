@@ -426,6 +426,7 @@ static int update_one(struct cache_tree *it,
 
 int cache_tree_update(struct index_state *istate, int flags)
 {
+	uint64_t start = getnanotime();
 	struct cache_tree *it = istate->cache_tree;
 	struct cache_entry **cache = istate->cache;
 	int entries = istate->cache_nr;
@@ -437,6 +438,7 @@ int cache_tree_update(struct index_state *istate, int flags)
 	if (i < 0)
 		return i;
 	istate->cache_changed |= CACHE_TREE_CHANGED;
+	trace_performance_since(start, "repair cache-tree");
 	return 0;
 }
 
