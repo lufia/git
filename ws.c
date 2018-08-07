@@ -20,6 +20,7 @@ static struct whitespace_rule {
 	{ "blank-at-eol", WS_BLANK_AT_EOL, 0 },
 	{ "blank-at-eof", WS_BLANK_AT_EOF, 0 },
 	{ "tab-in-indent", WS_TAB_IN_INDENT, 0, 1 },
+	{ "ignore-first-space", WS_IGNORE_FIRST_SPACE, 0, 1 },
 };
 
 unsigned parse_whitespace_rule(const char *string)
@@ -177,8 +178,16 @@ static unsigned ws_check_emit_1(const char *line, int len, unsigned ws_rule,
 	if (trailing_whitespace == -1)
 		trailing_whitespace = len;
 
+	if ((ws_rule & WS_IGNORE_FIRST_SPACE) && len && line[0] == ' ') {
+		if (stream)
+			fwrite(line, 1, 1, stream);
+		written++;
+		if (!trailing_whitespace)
+			trailing_whitespace++;
+	}
+
 	/* Check indentation */
-	for (i = 0; i < trailing_whitespace; i++) {
+	for (i = written; i < trailing_whitespace; i++) {
 		if (line[i] == ' ')
 			continue;
 		if (line[i] != '\t')

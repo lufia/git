@@ -1743,11 +1743,12 @@ void shift_tree_by(const struct object_id *, const struct object_id *, struct ob
 #define WS_CR_AT_EOL           01000
 #define WS_BLANK_AT_EOF        02000
 #define WS_TAB_IN_INDENT       04000
+#define WS_IGNORE_FIRST_SPACE 010000
 #define WS_TRAILING_SPACE      (WS_BLANK_AT_EOL|WS_BLANK_AT_EOF)
 #define WS_DEFAULT_RULE (WS_TRAILING_SPACE|WS_SPACE_BEFORE_TAB|8)
 #define WS_TAB_WIDTH_MASK        077
 /* All WS_* -- when extended, adapt diff.c emit_symbol */
-#define WS_RULE_MASK           07777
+#define WS_RULE_MASK           017777
 extern unsigned whitespace_rule_cfg;
 extern unsigned whitespace_rule(const char *);
 extern unsigned parse_whitespace_rule(const char *);
