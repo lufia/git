@@ -1028,6 +1028,339 @@ sub color_diff {
 	} @_;
 }
 
+use constant {
+	NO_NEWLINE => 1,
+	LAST_ADD_DEL => 2,
+	FIRST_ADD => 4
+};
+
+sub label_hunk_lines {
+	my $hunk = shift;
+	my $text = $hunk->{TEXT};
+	# A block contains the insertions and deletions occurring context
+	# lines.
+	my (@blocks, @line_flags, @lines, @modes);
+	my ($block, $label, $last_mode) = (0, 0, '');
+	for my $line (1..$#{$text}) {
+		$line_flags[$line] = 0;
+		my $mode = substr($text->[$line], 0, 1);
+		if ($mode eq '\\') {
+			$line_flags[$line - 1] |= NO_NEWLINE;
+		}
+		if ($mode ne '-' and $last_mode eq '-' or
+		    $mode ne '+' and $last_mode eq '+') {
+			$line_flags[$line - 1] |= LAST_ADD_DEL;
+		}
+		if ($mode eq '+' and $last_mode ne '+') {
+			$line_flags[$line] |= FIRST_ADD;
+		}
+		if ($mode eq '-' or $mode eq '+') {
+			$blocks[++$label] = $block;
+			$lines[$label] = $line;
+			$modes[$label] = $mode;
+		} elsif ($mode eq ' ' and $last_mode ne ' ') {
+			$block++;
+		}
+		$last_mode = $mode;
+	}
+	if ($last_mode eq '-' or $last_mode eq '+') {
+		$line_flags[-1] |= LAST_ADD_DEL;
+	}
+	if ($label > 1) {
+		$hunk->{LABELS} = {
+			BLOCKS => \@blocks,
+			LINES => \@lines,
+			MODES => \@modes
+		};
+		$hunk->{LINE_FLAGS} = \@line_flags;
+		return 1;
+	}
+	return 0;
+}
+
+sub select_hunk_lines {
+	my ($hunk, $selected) = @_;
+	my ($line_flags, $text) = @{$hunk}{qw(LINE_FLAGS TEXT)};
+	my ($i, $o_cnt, $n_cnt) = (0, 0, 0);
+	my @newtext;
+
+	my $select_lines = sub {
+		for my $i (@_) {
+			my $line = $text->[$i];
+			my $mode = substr($line, 0, 1);
+			push @newtext, $line;
+			if ($mode eq '+') {
+				$n_cnt++;
+			} elsif ($mode eq '-') {
+				$o_cnt++;
+			}
+		}
+	};
+
+	my ($lo, $hi, $pre_insert, $post_insert) = splice(@$selected, 0, 4);
+	# Lines with this mode will become context lines if they are
+	# not selected
+	my $context_mode = $patch_mode_flavour{IS_REVERSE} ? '+' : '-';
+	for $i (1..$#{$text}) {
+		if ($i == $lo and defined($pre_insert)) {
+			$select_lines->(@$pre_insert);
+		}
+		if ($lo <= $i and $i <= $hi) {
+			$select_lines->($i);
+		} else {
+			my $line = $text->[$i];
+			my $mode = substr($line, 0, 1);
+			if ($mode eq ' ' or $mode eq $context_mode) {
+				push @newtext, ' ' . substr($line, 1);
+				$o_cnt++; $n_cnt++;
+				if ($line_flags->[$i] & NO_NEWLINE) {
+					push @newtext, $text->[$i + 1];
+				}
+			}
+		}
+		if ($i == $hi) {
+			if (defined($post_insert)) {
+				$select_lines->(@$post_insert);
+			}
+			if (@$selected) {
+				($lo, $hi, $pre_insert, $post_insert) =
+						splice(@$selected, 0, 4);
+			}
+		}
+	}
+	my ($o_ofs, $orig_o_cnt, $n_ofs, $orig_n_cnt) =
+					parse_hunk_header($text->[0]);
+	unshift @newtext, format_hunk_header($o_ofs, $o_cnt, $n_ofs, $n_cnt);
+	my $newhunk = {
+		TEXT => \@newtext,
+		DISPLAY => [ color_diff(@newtext) ],
+		OFS_DELTA => $orig_o_cnt - $orig_n_cnt - $o_cnt + $n_cnt,
+		TYPE => $hunk->{TYPE},
+		USE => 1,
+	};
+	# If this hunk has previously been edited add the offset delta
+	# of the old hunk to get the real delta from the original
+	# hunk.
+	if ($hunk->{OFS_DELTA}) {
+		$newhunk->{OFS_DELTA} += $hunk->{OFS_DELTA};
+	}
+	return $newhunk;
+}
+
+sub pair_hunk_selection {
+	my $line_flags = shift;
+	my @ret;
+	my $reverse = $patch_mode_flavour{IS_REVERSE};
+	for my $sel (@_) {
+		my $i = 0;
+		my ($del, $add) = @$sel;
+		my $ndel = @$del / 2;
+		my $nadd = @$add / 2;
+		# If there the same number of insertion and deletion
+		# groups then pair up in insertions and deletions.
+		if ($nadd == $ndel) {
+			while ($i < @{$del}) {
+				my ($ra, $rb) = $reverse ? ($add, $del) :
+							   ($del, $add);
+				my ($starta, $enda) = @{$ra}[$i, $i + 1];
+				my ($startb, $endb) = @{$rb}[$i, $i + 1];
+				if ($line_flags->[$enda] & LAST_ADD_DEL and
+				    $line_flags->[$endb] & NO_NEWLINE) {
+					$endb++;
+				}
+				if ($line_flags->[$enda] & NO_NEWLINE) {
+					$enda++;
+				}
+				push @ret, $reverse ?
+					($starta, $enda,
+					 [ $startb..$endb ], undef) :
+					($starta, $enda,
+					 undef, [ $startb..$endb ]);
+				$i += 2;
+			}
+		# If there are only deletions or only insertions or
+		# a) we're adding to the index and there is a single group
+		#    of insertions starting at the first inserted line
+		# or
+		# b) we're resetting the index and there is a single group
+		#    of deletions finishing with the last deleted line
+		# then it is okay just to have deletions followed by
+		# insertions.
+		} elsif (!$nadd or !$ndel or
+			 (!$reverse and $ndel == 1 and
+			  $line_flags->[$del->[1]] & LAST_ADD_DEL) or
+			 ($reverse and $nadd == 1 and
+			  $line_flags->[$add->[0]] & FIRST_ADD)) {
+			while ($i < @$del) {
+				my ($start, $end) = @{$del}[$i, $i + 1];
+				if ($line_flags->[$end] & NO_NEWLINE) {
+					$end++;
+				}
+				push @ret, $start, $end, undef, undef;
+				$i += 2;
+			}
+			$i = 0;
+			while ($i < @$add) {
+				my ($start, $end) = @{$add}[$i, $i + 1];
+				if ($line_flags->[$end] & NO_NEWLINE) {
+					$end++;
+				}
+				push @ret, $start, $end, undef, undef;
+				$i += 2;
+			}
+		} else {
+			printf STDERR __("unable to pair up insertions and deletions\n");
+			return undef;
+		}
+	}
+	return \@ret;
+}
+
+sub process_hunk_selection {
+	my ($labels, $line_flags) = @{shift()}{qw(LABELS LINE_FLAGS)};
+	my ($blocks, $lines, $modes) =
+				@{$labels}{qw(BLOCKS LINES MODES)};
+	my @selection = sort { $a <=> $b } @_;
+	unless (@selection) {
+		return [];
+	}
+	my $last_label = shift @selection;
+	my ($last_block, $last_line, $last_mode) =
+	    ($blocks->[$last_label], $lines->[$last_label], $modes->[$last_label]);
+	my ($del, $add) = ([], []);
+	push @{$last_mode eq '-' ? $del : $add}, $last_line;
+	my @sel;
+	for my $label (@selection) {
+		my ($block, $line, $mode) =
+			($blocks->[$label], $lines->[$label], $modes->[$label]);
+		if ($block != $last_block) {
+			push @{$last_mode eq '-' ? $del : $add}, $last_line;
+			push @sel, [ $del, $add ];
+			($del, $add) = ([], []);
+			push @{$mode eq '-' ? $del : $add}, $line;
+		} elsif ($line != $last_line + 1 or $mode ne $last_mode) {
+			push @{$last_mode eq '-' ? $del : $add}, $last_line;
+			push @{$mode eq '-' ? $del : $add}, $line;
+		}
+		($last_block, $last_line, $last_mode) = ($block, $line, $mode);
+	}
+	push @{$last_mode eq '-' ? $del : $add}, $last_line;
+	push @sel, [ $del, $add ];
+	pair_hunk_selection($line_flags, @sel);
+}
+
+sub check_hunk_label {
+	my ($max_label, $label) = @_;
+	if ($label < 1 or $label > $max_label) {
+		error_msg sprintf(__("invalid hunk line '%d'\n"), $label);
+		return 0;
+	}
+	return 1;
+}
+
+sub split_hunk_selection {
+	my @fields = @_;
+	my @ret;
+	for my $field (@fields) {
+		while ($field ne '') {
+			if ($field =~ /^[0-9]-$/) {
+				push @ret, $field;
+				last;
+			} elsif (my ($sel, $rest) =
+					($field =~ /^([0-9](?:-[0-9])?)(.*)/)) {
+				push @ret, $sel;
+				$field = $rest;
+			} else {
+				error_msg sprintf
+				    __("invalid hunk line '%s'\n"),
+				    substr($field, 0, 1);
+				return ();
+			}
+		}
+	}
+	return @ret;
+}
+
+sub parse_hunk_selection {
+	my ($hunk, $line) = @_;
+	my $lines = $hunk->{LABELS}->{LINES};
+	my $max_label = $#{$lines};
+	my $invert = undef;
+	my %selected;
+	my @fields = split(/[,\s]+/, $line);
+	if (my ($rest) = ($fields[0] =~ /^-(.*)/)) {
+		$invert = 1;
+		if ($rest ne '') {
+			$fields[0] = $rest;
+		} else {
+			shift @fields;
+			unless (@fields) {
+				error_msg __("no lines to invert\n");
+				return undef;
+			}
+		}
+	}
+	if ($max_label < 10) {
+		@fields = split_hunk_selection(@fields) or return undef;
+	}
+	for my $f (@fields) {
+		if (my ($lo, $hi) = ($f =~ /^([0-9]+)-([0-9]*)$/)) {
+			if ($hi eq '') {
+				$hi = $max_label;
+			}
+			check_hunk_label($max_label, $lo) or return undef;
+			check_hunk_label($max_label, $hi) or return undef;
+			if ($hi < $lo) {
+				($lo, $hi) = ($hi, $lo);
+			}
+			undef @selected{$lo..$hi};
+		} elsif (my ($label) = ($f =~ /^([0-9]+)$/)) {
+			check_hunk_label($max_label, $label) or return undef;
+			undef $selected{$label};
+		} else {
+			error_msg sprintf(__("invalid hunk line '%s'\n"), $f);
+			return undef;
+		}
+	}
+	if ($invert) {
+		my %inverted;
+		undef @inverted{1..$max_label};
+		delete @inverted{keys(%selected)};
+		%selected = %inverted;
+	}
+	return process_hunk_selection($hunk, keys(%selected));
+}
+
+sub display_hunk_lines {
+	my $hunk = shift;
+	my ($display, $lines) = ($hunk->{DISPLAY}, $hunk->{LABELS}->{LINES});
+	my $max_label = $#{$lines};
+	my $width = int(log($max_label) / log(10)) + 1;
+	my $padding = ' ' x ($width + 1);
+	my $label = 1;
+	for my $line (0..$#{$display}) {
+		if ($lines->[$label] == $line) {
+			printf '%*d %s', $width, $label, $display->[$line];
+			$label++ if ($label < $max_label);
+		} else {
+			print $padding . $display->[$line];
+		}
+	}
+}
+
+sub select_lines_loop {
+	my $hunk = shift;
+	display_hunk_lines($hunk);
+	my $selection = undef;
+	until (defined $selection) {
+		print colored $prompt_color, __("select lines? ");
+		my $text = <STDIN>;
+		defined $text and $text =~ /\S/ or return undef;
+		$selection = parse_hunk_selection($hunk, $text);
+	}
+	return select_hunk_lines($hunk, $selection);
+}
+
 my %edit_hunk_manually_modes = (
 	stage => N__(
 "If the patch applies cleanly, the edited hunk will immediately be
@@ -1276,6 +1609,7 @@ j - leave this hunk undecided, see next undecided hunk
 J - leave this hunk undecided, see next hunk
 k - leave this hunk undecided, see previous undecided hunk
 K - leave this hunk undecided, see previous hunk
+l - select hunk lines to use
 s - split the current hunk into smaller hunks
 e - manually edit the current hunk
 ? - print help
@@ -1492,6 +1826,9 @@ sub patch_update_file {
 		if ($hunk[$ix]{TYPE} eq 'hunk') {
 			$other .= ',e';
 		}
+		if (label_hunk_lines($hunk[$ix])) {
+			$other .= ',l';
+		}
 		for (@{$hunk[$ix]{DISPLAY}}) {
 			print;
 		}
@@ -1636,6 +1973,18 @@ sub patch_update_file {
 			elsif ($line =~ /^j/) {
 				if ($other !~ /j/) {
 					error_msg __("No next hunk\n");
+					next;
+				}
+			}
+			elsif ($line =~ /^l/) {
+				unless ($other =~ /l/) {
+					error_msg __("Cannot select line by line\n");
+					next;
+				}
+				my $newhunk = select_lines_loop($hunk[$ix]);
+				if ($newhunk) {
+					splice @hunk, $ix, 1, $newhunk;
+				} else {
 					next;
 				}
 			}

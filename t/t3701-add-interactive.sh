@@ -403,6 +403,207 @@ test_expect_failure 'split hunk "add -p (no, yes, edit)"' '
 	! grep "^+31" actual
 '
 
+test_expect_success 'setup test file' '
+	test_write_lines 10 31 32 33 60 >test &&
+	printf 61 >>test
+'
+
+test_expect_success 'setup expected diff' '
+	cat >expected <<-\EOF
+	diff --git a/test b/test
+	index 0889435..341cc6b 100644
+	--- a/test
+	+++ b/test
+	@@ -1,6 +1,6 @@
+	 10
+	 20
+	-30
+	-40
+	-50
+	+31
+	+33
+	 60
+	+61
+	\ No newline at end of file
+	EOF
+'
+
+test_expect_success 'can stage individual lines of patch' '
+	git reset &&
+	printf "%s\n" l "5-2,7-" |
+	EDITOR=: git add -p 2>error &&
+	test_must_be_empty error &&
+	git diff --cached HEAD >actual &&
+	diff_cmp expected actual
+'
+
+test_expect_success 'setup expected diff' '
+	cat >expected <<-\EOF
+	diff --git a/test b/test
+	index 0889435..cc6163b 100644
+	--- a/test
+	+++ b/test
+	@@ -1,6 +1,7 @@
+	 10
+	 20
+	 30
+	-40
+	 50
+	+33
+	 60
+	+61
+	\ No newline at end of file
+	EOF
+'
+
+test_expect_success 'can reset individual lines of patch' '
+	printf "%s\n" l -625 |
+	EDITOR=: git reset -p 2>error &&
+	test_must_be_empty error &&
+	git diff --cached HEAD >actual &&
+	diff_cmp expected actual
+'
+
+test_expect_success 'setup file' '
+	test_write_lines ten twenty thirty forty fifty >test &&
+	printf sixty >>test
+'
+
+test_expect_success 'setup expected diff' '
+	cat >expected <<-\EOF
+	diff --git a/test b/test
+	index 0889435..cc6163b 100644
+	--- a/test
+	+++ b/test
+	@@ -1,6 +1,8 @@
+	-10
+	+ten
+	+twenty
+	+thirty
+	 20
+	-30
+	+sixty
+	 40
+	 50
+	 60
+	EOF
+'
+
+test_expect_success 'can stage modified lines of patch (1)' '
+	git reset &&
+	printf "%s\n" l "1,3 7-9 12" |
+	EDITOR=: git add -p 2>error &&
+	test_must_be_empty error &&
+	git diff --cached HEAD >actual &&
+	diff_cmp expected actual
+'
+
+test_expect_success 'setup expected diff' '
+	cat >expected <<-\EOF
+	diff --git a/test b/test
+	index 0889435..cc6163b 100644
+	--- a/test
+	+++ b/test
+	@@ -1,6 +1,7 @@
+	 10
+	-20
+	+twenty
+	+thirty
+	 30
+	 40
+	 50
+	-60
+	+sixty
+	\ No newline at end of file
+	EOF
+'
+
+test_expect_success 'can stage modified lines of patch (2)' '
+	git reset &&
+	printf "%s\n" l "2,6,8,9,12" |
+	EDITOR=: git add -p 2>error &&
+	test_must_be_empty error &&
+	git diff --cached HEAD >actual &&
+	diff_cmp expected actual
+'
+
+test_expect_success 'setup HEAD' '
+	git reset &&
+	git apply --cached <<-\EOF &&
+	diff --git a/test b/test
+	--- a/test
+	+++ b/test
+	@@ -3,4 +3,4 @@
+	 30
+	 40
+	 50
+	-60
+	+60
+	\ No newline at end of file
+	EOF
+	git commit
+'
+
+test_expect_success 'setup expected diff' '
+	cat >expected <<-\EOF
+	diff --git a/test b/test
+	index 0889435..cc6163b 100644
+	--- a/test
+	+++ b/test
+	@@ -1,6 +1,8 @@
+	-10
+	+ten
+	+twenty
+	+thirty
+	 20
+	-30
+	+fifty
+	 40
+	 50
+	 60
+	\ No newline at end of file
+	EOF
+'
+
+test_expect_success 'can stage modified lines of patch (3)' '
+	git reset &&
+	printf "%s\n" l "11,1,3 7-9" |
+	EDITOR=: git add -p 2>error &&
+	test_must_be_empty error &&
+	git diff --cached HEAD >actual &&
+	diff_cmp expected actual
+'
+
+test_expect_success 'setup expected diff' '
+	cat >expected <<-\EOF
+	diff --git a/test b/test
+	index 0889435..cc6163b 100644
+	--- a/test
+	+++ b/test
+	@@ -1,6 +1,8 @@
+	-10
+	+ten
+	+twenty
+	+thirty
+	 20
+	 30
+	 40
+	 50
+	-60
+	\ No newline at end of file
+	+fifty
+	EOF
+'
+
+test_expect_success 'can stage modified lines of patch (4)' '
+	git reset &&
+	printf "%s\n" l "9-6 11,1" |
+	EDITOR=: git add -p 2>error &&
+	test_must_be_empty error &&
+	git diff --cached HEAD >actual &&
+	diff_cmp expected actual
+'
+
 test_expect_success 'patch mode ignores unmerged entries' '
 	git reset --hard &&
 	test_commit conflict &&
@@ -635,6 +836,14 @@ test_expect_success 'add -p patch editing works with pathological context lines'
 	# n q q below is in case edit fails
 	printf "%s\n" e y    n q q |
 	git add -p &&
+	git cat-file blob :a >actual &&
+	test_cmp expected-2 actual
+'
+
+test_expect_success 'add -p selecting lines works with pathological context lines' '
+	git reset &&
+	printf "%s\n" l 2 y |
+	GIT_EDITOR=./editor git add -p &&
 	git cat-file blob :a >actual &&
 	test_cmp expected-2 actual
 '
