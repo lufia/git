@@ -1247,6 +1247,15 @@ extern void unleak_memory(const void *ptr, size_t len);
 #define UNLEAK(var) do {} while (0)
 #endif
 
+#include "structured-logging.h"
+#if defined(STRUCTURED_LOGGING) && !defined(exit)
+/*
+ * Intercept all calls to exit() so that exit-code can be included
+ * in the "cmd_exit" message written by the at-exit routine.
+ */
+#define exit(code) exit(slog_exit_code(code))
+#endif
+
 /*
  * This include must come after system headers, since it introduces macros that
  * replace system names.
