@@ -416,6 +416,8 @@ const char *diff_aligned_abbrev(const struct object_id *sha1, int);
 #define DIFF_SILENT_ON_REMOVED 01
 /* report racily-clean paths as modified */
 #define DIFF_RACY_IS_MODIFIED 02
+/* skip loading the fsmonitor data */
+#define DIFF_SKIP_FSMONITOR 04
 int run_diff_files(struct rev_info *revs, unsigned int option);
 int run_diff_index(struct rev_info *revs, int cached);
 
