@@ -1266,7 +1266,7 @@ color.push.error::
 color.remote::
 	If set, keywords at the start of the line are highlighted. The
 	keywords are "error", "warning", "hint" and "success", and are
-	matched case-insensitively. Maybe set to `always`, `false` (or
+	matched case-insensitively. May be set to `always`, `false` (or
 	`never`) or `auto` (or `true`). If unset, then the value of
 	`color.ui` is used (`auto` by default).
 
