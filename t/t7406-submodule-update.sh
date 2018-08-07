@@ -603,7 +603,8 @@ test_expect_success 'submodule update - update=none in .git/config but --checkou
 	 git diff --name-only >out &&
 	 grep submodule out &&
 	 git submodule update --checkout &&
-	 test_must_fail git diff --name-only \| grep submodule &&
+	 git diff --name-only >out &&
+	 ! grep submodule out &&
 	 (cd submodule &&
 	  ! compare_head
 	 ) &&
