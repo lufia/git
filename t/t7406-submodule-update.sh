@@ -605,7 +605,7 @@ test_expect_success 'submodule update - update=none in .git/config but --checkou
 	 git submodule update --checkout &&
 	 test_must_fail git diff --name-only \| grep submodule &&
 	 (cd submodule &&
-	  test_must_fail compare_head
+	  ! compare_head
 	 ) &&
 	 git config --unset submodule.submodule.update
 	)
