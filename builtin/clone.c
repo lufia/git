@@ -712,6 +712,33 @@ static void update_head(const struct ref *our, const struct ref *remote,
 	}
 }
 
+static void find_duplicate_icase_entries(struct index_state *istate,
+					 struct string_list *dup)
+{
+	struct string_list list = STRING_LIST_INIT_NODUP;
+	int i;
+
+	for (i = 0; i < istate->cache_nr; i++)
+		string_list_append(&list, istate->cache[i]->name);
+
+	list.cmp = fspathcmp;
+	string_list_sort(&list);
+
+	for (i = 1; i < list.nr; i++) {
+		const char *cur = list.items[i].string;
+		const char *prev = list.items[i - 1].string;
+
+		if (dup->nr &&
+		    !fspathcmp(cur, dup->items[dup->nr - 1].string)) {
+			string_list_append(dup, cur);
+		} else if (!fspathcmp(cur, prev)) {
+			string_list_append(dup, prev);
+			string_list_append(dup, cur);
+		}
+	}
+	string_list_clear(&list, 0);
+}
+
 static int checkout(int submodule_progress)
 {
 	struct object_id oid;
@@ -761,6 +788,20 @@ static int checkout(int submodule_progress)
 
 	if (write_locked_index(&the_index, &lock_file, COMMIT_LOCK))
 		die(_("unable to write new index file"));
+
+	if (ignore_case) {
+		struct string_list dup = STRING_LIST_INIT_DUP;
+		int i;
+
+		find_duplicate_icase_entries(&the_index, &dup);
+		if (dup.nr) {
+			warning(_("the following paths in this repository only differ in case and will\n"
+				  "cause problems because you have cloned it on an case-insensitive filesytem:\n"));
+			for (i = 0; i < dup.nr; i++)
+				fprintf(stderr, "\t%s\n", dup.items[i].string);
+		}
+		string_list_clear(&dup, 0);
+	}
 
 	err |= run_hook_le(NULL, "post-checkout", sha1_to_hex(null_sha1),
 			   oid_to_hex(&oid), "1", NULL);
