@@ -37,6 +37,7 @@ struct config_source {
 	int eof;
 	struct strbuf value;
 	struct strbuf var;
+	unsigned section_name_old_dot_style : 1;
 
 	int (*do_fgetc)(struct config_source *c);
 	int (*do_ungetc)(int c, struct config_source *conf);
@@ -605,6 +606,7 @@ static int get_value(config_fn_t fn, void *data, struct strbuf *name)
 
 static int get_extended_base_var(struct strbuf *name, int c)
 {
+	cf->section_name_old_dot_style = 0;
 	do {
 		if (c == '\n')
 			goto error_incomplete_line;
@@ -641,6 +643,7 @@ error_incomplete_line:
 
 static int get_base_var(struct strbuf *name)
 {
+	cf->section_name_old_dot_style = 1;
 	for (;;) {
 		int c = get_next_char();
 		if (cf->eof)
@@ -2369,14 +2372,21 @@ static int store_aux_event(enum config_event_t type,
 	store->parsed[store->parsed_nr].type = type;
 
 	if (type == CONFIG_EVENT_SECTION) {
+		int (*cmpfn)(const char *, const char *, size_t);
+
 		if (cf->var.len < 2 || cf->var.buf[cf->var.len - 1] != '.')
 			return error(_("invalid section name '%s'"), cf->var.buf);
+
+		if (cf->section_name_old_dot_style)
+			cmpfn = strncasecmp;
+		else
+			cmpfn = strncmp;
 
 		/* Is this the section we were looking for? */
 		store->is_keys_section =
 			store->parsed[store->parsed_nr].is_keys_section =
 			cf->var.len - 1 == store->baselen &&
-			!strncasecmp(cf->var.buf, store->key, store->baselen);
+			!cmpfn(cf->var.buf, store->key, store->baselen);
 		if (store->is_keys_section) {
 			store->section_seen = 1;
 			ALLOC_GROW(store->seen, store->seen_nr + 1,
