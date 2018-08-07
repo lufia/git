@@ -332,6 +332,8 @@ apache2_conf () {
 			module_path="/usr/lib/httpd/modules"
 		test -d "/usr/lib/apache2/modules" &&
 			module_path="/usr/lib/apache2/modules"
+		test -d "/etc/httpd/modules" &&
+			module_path="/etc/httpd/modules"
 	fi
 	bind=
 	test x"$local" = xtrue && bind='127.0.0.1:'
@@ -356,7 +358,7 @@ EOF
 			break
 		fi
 	done
-	for mod in mime dir env log_config authz_core
+	for mod in mime dir env log_config authz_core unixd
 	do
 		if test -e $module_path/mod_${mod}.so
 		then
