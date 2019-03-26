@@ -272,6 +272,10 @@ extern char *gitbasename(char *);
 extern char *gitdirname(char *);
 #endif
 
+#ifdef __PLAN9__
+#include <machine/endian.h>
+#endif
+
 #ifndef NO_ICONV
 #include <iconv.h>
 #endif
