@@ -155,6 +155,7 @@
 #define GIT_WINDOWS_NATIVE
 #endif
 
+#include <sys/types.h>
 #include <unistd.h>
 #include <stdio.h>
 #include <sys/stat.h>
@@ -171,7 +172,6 @@
 #ifdef NEEDS_SYS_PARAM_H
 #include <sys/param.h>
 #endif
-#include <sys/types.h>
 #include <dirent.h>
 #include <sys/time.h>
 #include <time.h>
