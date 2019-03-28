@@ -5,12 +5,18 @@ V=0
 #CURL_CONFIG=curl-config
 #GIT_HOST_CPU=i386|i686|x86_64
 
-CFLAGS=$CFLAGS -Icompat/plan9 -c\
+ROOT=`{pwd}
+
+CFLAGS=$CFLAGS -c\
+	-I$ROOT\
+	-I$ROOT/compat/plan9\
+	-I$ROOT/compat/regex\
 	-D__PLAN9__\
 	-D_POSIX_SOURCE\
 	-D_BSD_EXTENSION\
 	-D_SUSV2_SOURCE\
 	-D_RESEARCH_SOURCE\
+	-DHAVE_SOCK_OPTS\
 	-DUSE_ST_TIMESPEC\
 	-DNO_SYMLINK_HEAD\
 	-DNO_GETTEXT\
@@ -33,7 +39,8 @@ CFLAGS=$CFLAGS -Icompat/plan9 -c\
 	-DNO_MEMMEM\
 	-DNO_PTHREADS\
 	-DHAVE_CLOCK_GETTIME\
-	-Icompat/regex\
+	-DETC_GITCONFIG="/sys/lib/git/config"\
+	-DETC_GITATTRIBUTES="/sys/lib/git/attributes"\
 
 NO_TCLTK=YesPlease
 NO_PERL=YesPlease

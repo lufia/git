@@ -157,6 +157,9 @@
 
 #include <sys/types.h>
 #include <unistd.h>
+#ifdef __PLAN9__
+#include <libv.h>
+#endif
 #include <stdio.h>
 #include <sys/stat.h>
 #include <fcntl.h>

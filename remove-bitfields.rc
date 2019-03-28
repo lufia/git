@@ -9,6 +9,6 @@ fn sigexit sighup sigint sigquit sigterm {
 
 files=`{du -a $* | awk '/\.[ch]$/ { print $2 }'}
 for(i in $files){
-	sed 's/([a-z]):[0-9]+([,;])/\1\2/g' $i >/tmp/remove-bitfields.$pid
+	sed 's/([a-z]) *: *[0-9]+([,;])/\1\2/g' $i >/tmp/remove-bitfields.$pid
 	cp /tmp/remove-bitfields.$pid $i
 }
