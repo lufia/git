@@ -3262,7 +3262,6 @@ const char *current_config_origin_type(void)
 		return "command line";
 	default:
 		BUG("unknown config origin type");
-		return NULL;
 	}
 }
 

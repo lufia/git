@@ -7,7 +7,7 @@ V=0
 
 ROOT=`{pwd}
 
-CFLAGS=$CFLAGS -c\
+CFLAGS=$CFLAGS -B -c\
 	-I$ROOT\
 	-I$ROOT/compat/plan9\
 	-I$ROOT/compat/regex\

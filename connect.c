@@ -542,7 +542,6 @@ static enum protocol get_protocol(const char *name)
 	if (!strcmp(name, "file"))
 		return PROTO_FILE;
 	die(_("protocol '%s' is not supported"), name);
-	return 0;
 }
 
 static char *host_end(char **hoststart, int removebrackets)
