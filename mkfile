@@ -1,15 +1,24 @@
 </sys/src/ape/config
 
+CFILES=`{sed -n '/^BUILTIN_OBJS *\+= *(.*)\.o$/s//\1.c/p' Makefile}
+OFILES=\
+	${CFILES:%.c=%.$O}\
+	common-main.$O\
+
 TARG=\
 	git\
+	${CFILES:builtin/%.c=git-%}\
 
-V=0
-#CURLDIR=/sys/include/ape/curl ??
-#CURL_CONFIG=curl-config
+#	`{sed -n '/^BUILT_INS *\+= *(git-.*)\$X$/s//\1/p' Makefile}\
+
+#APP_CFILES=`{sed -n '/^PROGRAM_OBJS *\+= *(.*)\.o$/s//\1.c/p' Makefile}
+#APP_OFILES=${APP_CFILES:%.c=%.$O}
+
 #GIT_HOST_CPU=i386|i686|x86_64
 
 ROOT=`{pwd}
 
+# TODO: refine
 # remove -w flag because it is noisy
 # remove -T flag because header files are not use extern
 CFLAGS=-FVB+ -c\
@@ -64,15 +73,10 @@ CFLAGS=-FVB+ -c\
 	-DFALLBACK_RUNTIME_PREFIX=""\
 	-DPAGER_ENV=""\
 
-# TODO: refine
-
-#NO_TCLTK=YesPlease
-#NO_PERL=YesPlease
-#NO_PYTHON=YesPlease
-
 LIB_CFILES=`{sed -n '/^LIB_OBJS *\+= *(.*)\.o$/s//\1.c/p' Makefile}
 LIB_OFILES=\
 	${LIB_CFILES:%.c=%.$O}\
+	compat/qsort_s.$O\
 	compat/strcasestr.$O\
 	compat/strlcpy.$O\
 	compat/strtoumax.$O\
@@ -86,10 +90,6 @@ LIB_OFILES=\
 
 XDIFF_CFILES=`{sed -n '/^XDIFF_OBJS *\+= *(.*)\.o$/s//\1.c/p' Makefile}
 XDIFF_OFILES=${XDIFF_CFILES:%.c=%.$O}
-
-CFILES=`{sed -n '/^BUILTIN_OBJS *\+= *(.*)\.o$/s//\1.c/p' Makefile}
-OFILES=\
-	${CFILES:%.c=%.$O}\
 
 HFILES=\
 	`{ls *.h}\
@@ -119,6 +119,10 @@ LIBXDIFFOBJ=${XDIFF_OFILES:%=$LIBXDIFF(%)}
 
 command-list.h:D:	command-list.txt
 	rc ./generate-cmdlist.rc $prereq >$target
+
+${CFILES:builtin/%.c=$O.git-%}:D:	plan9/wrap.c
+	for(i in $target)
+		$CC -FTVw -o $i $prereq
 
 $LIBGIT:	$LIBGITOBJ
 	ar vu $target $newmember
