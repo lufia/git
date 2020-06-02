@@ -31,6 +31,7 @@ int cmd_range_diff(int argc, const char **argv, const char *prefix)
 	int res = 0;
 	struct strbuf range1 = STRBUF_INIT, range2 = STRBUF_INIT;
 
+	memset(&diffopt, 0, sizeof diffopt);
 	git_config(git_diff_ui_config, NULL);
 
 	repo_diff_setup(the_repository, &diffopt);

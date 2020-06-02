@@ -2198,7 +2198,7 @@ int cmd_am(int argc, const char **argv, const char *prefix)
 	int binary = -1;
 	int keep_cr = -1;
 	int patch_format = PATCH_FORMAT_UNKNOWN;
-	struct resume_mode resume = { .mode = RESUME_FALSE };
+	struct resume_mode resume = { .mode = RESUME_FALSE, .sub_mode = 0 };
 	int in_progress;
 	int ret = 0;
 
@@ -2286,7 +2286,7 @@ int cmd_am(int argc, const char **argv, const char *prefix)
 		  "(diff|raw)",
 		  N_("show the patch being applied"),
 		  PARSE_OPT_CMDMODE | PARSE_OPT_OPTARG | PARSE_OPT_NONEG | PARSE_OPT_LITERAL_ARGHELP,
-		  parse_opt_show_current_patch, RESUME_SHOW_PATCH },
+		  parse_opt_show_current_patch, RESUME_SHOW_PATCH, Z },
 		OPT_BOOL(0, "committer-date-is-author-date",
 			&state.committer_date_is_author_date,
 			N_("lie about committer date")),
@@ -2295,7 +2295,7 @@ int cmd_am(int argc, const char **argv, const char *prefix)
 		OPT_RERERE_AUTOUPDATE(&state.allow_rerere_autoupdate),
 		{ OPTION_STRING, 'S', "gpg-sign", &state.sign_commit, N_("key-id"),
 		  N_("GPG-sign commits"),
-		  PARSE_OPT_OPTARG, NULL, (intptr_t) "" },
+		  PARSE_OPT_OPTARG, NULL, (intptr_t) "", Z },
 		OPT_HIDDEN_BOOL(0, "rebasing", &state.rebasing,
 			N_("(internal use for git-rebase)")),
 		OPT_END()

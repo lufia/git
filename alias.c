@@ -30,7 +30,7 @@ static int config_alias_cb(const char *key, const char *value, void *d)
 
 char *alias_lookup(const char *alias)
 {
-	struct config_alias_data data = { alias, NULL };
+	struct config_alias_data data = { alias, NULL, NULL };
 
 	read_early_config(config_alias_cb, &data);
 

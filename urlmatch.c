@@ -560,6 +560,7 @@ int urlmatch_config_entry(const char *var, const char *value, void *cb)
 	int (*select_fn)(const struct urlmatch_item *a, const struct urlmatch_item *b) =
 		collect->select_fn ? collect->select_fn : cmp_matches;
 
+	memset(&matched, 0, sizeof matched);
 	if (!skip_prefix(var, collect->section, &key) || *(key++) != '.') {
 		if (collect->cascade_fn)
 			return collect->cascade_fn(var, value, cb);

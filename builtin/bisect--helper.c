@@ -190,6 +190,7 @@ static void log_commit(FILE *fp, char *fmt, const char *state,
 	struct strbuf commit_msg = STRBUF_INIT;
 	char *label = xstrfmt(fmt, state);
 
+	memset(&pp, 0, sizeof pp);
 	format_commit_message(commit, "%s", &commit_msg, &pp);
 
 	fprintf(fp, "# %s: [%s] %s\n", label, oid_to_hex(&commit->object.oid),
@@ -657,6 +658,7 @@ int cmd_bisect__helper(int argc, const char **argv, const char *prefix)
 	};
 	struct bisect_terms terms = { .term_good = NULL, .term_bad = NULL };
 
+	memset(&terms, 0, sizeof terms);
 	argc = parse_options(argc, argv, prefix, options,
 			     git_bisect_helper_usage,
 			     PARSE_OPT_KEEP_DASHDASH | PARSE_OPT_KEEP_UNKNOWN);

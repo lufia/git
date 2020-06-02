@@ -68,7 +68,7 @@ static int show_scope;
 
 #define OPT_CALLBACK_VALUE(s, l, v, h, i) \
 	{ OPTION_CALLBACK, (s), (l), (v), NULL, (h), PARSE_OPT_NOARG | \
-	PARSE_OPT_NONEG, option_parse_type, (i) }
+	PARSE_OPT_NONEG, option_parse_type, (i), Z }
 
 static NORETURN void usage_builtin_config(void);
 
@@ -302,6 +302,7 @@ static int get_value(const char *key_, const char *regex_)
 	struct strbuf_list values = {NULL};
 	int i;
 
+	memset(&values, 0, sizeof values);
 	if (use_key_regexp) {
 		char *tl;
 
@@ -551,12 +552,15 @@ static int get_urlmatch(const char *var, const char *url)
 	int ret;
 	char *section_tail;
 	struct string_list_item *item;
-	struct urlmatch_config config = { STRING_LIST_INIT_DUP };
+	struct urlmatch_config config = { STRING_LIST_INIT_DUP, {0}, NULL, NULL };
 	struct string_list values = STRING_LIST_INIT_DUP;
 
+	memset(&config.url, 0, sizeof config.url);
 	config.collect_fn = urlmatch_collect_fn;
 	config.cascade_fn = NULL;
 	config.cb = &values;
+	config.select_fn = NULL;
+	config.fallback_match_fn = NULL;
 
 	if (!url_normalize(url, &config.url))
 		die("%s", config.url.err);

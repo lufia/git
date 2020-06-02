@@ -178,7 +178,7 @@ static struct option builtin_fetch_options[] = {
 		      N_("convert to a complete repository"),
 		      1, PARSE_OPT_NONEG),
 	{ OPTION_STRING, 0, "submodule-prefix", &submodule_prefix, N_("dir"),
-		   N_("prepend this to submodule path output"), PARSE_OPT_HIDDEN },
+		   N_("prepend this to submodule path output"), PARSE_OPT_HIDDEN, Z },
 	OPT_CALLBACK_F(0, "recurse-submodules-default",
 		   &recurse_submodules_default, N_("on-demand"),
 		   N_("default for recursive fetching of submodules "

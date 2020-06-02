@@ -667,6 +667,7 @@ int cmd_cat_file(int argc, const char **argv, const char *prefix)
 		OPT_END()
 	};
 
+	memset(&batch, 0, sizeof batch);
 	git_config(git_cat_file_config, NULL);
 
 	batch.buffer_output = -1;

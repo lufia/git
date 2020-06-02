@@ -712,6 +712,7 @@ static int prepare_to_commit(const char *index_file, const char *prefix,
 		else {
 			struct pretty_print_context ctx = {0};
 			struct commit *c;
+			memset(&ctx, 0, sizeof ctx);
 			c = lookup_commit_reference_by_name(squash_message);
 			if (!c)
 				die(_("could not lookup commit %s"), squash_message);
@@ -745,6 +746,7 @@ static int prepare_to_commit(const char *index_file, const char *prefix,
 	} else if (fixup_message) {
 		struct pretty_print_context ctx = {0};
 		struct commit *commit;
+		memset(&ctx, 0, sizeof ctx);
 		commit = lookup_commit_reference_by_name(fixup_message);
 		if (!commit)
 			die(_("could not lookup commit %s"), fixup_message);
@@ -1048,6 +1050,7 @@ static const char *find_author_by_nickname(const char *name)
 	commit = get_revision(&revs);
 	if (commit) {
 		struct pretty_print_context ctx = {0};
+		memset(&ctx, 0, sizeof ctx);
 		ctx.date_mode.type = DATE_NORMAL;
 		strbuf_release(&buf);
 		format_commit_message(commit, "%aN <%aE>", &buf, &ctx);
@@ -1383,14 +1386,14 @@ int cmd_status(int argc, const char **argv, const char *prefix)
 		{ OPTION_STRING, 'u', "untracked-files", &untracked_files_arg,
 		  N_("mode"),
 		  N_("show untracked files, optional modes: all, normal, no. (Default: all)"),
-		  PARSE_OPT_OPTARG, NULL, (intptr_t)"all" },
+		  PARSE_OPT_OPTARG, NULL, (intptr_t)"all", Z },
 		{ OPTION_STRING, 0, "ignored", &ignored_arg,
 		  N_("mode"),
 		  N_("show ignored files, optional modes: traditional, matching, no. (Default: traditional)"),
-		  PARSE_OPT_OPTARG, NULL, (intptr_t)"traditional" },
+		  PARSE_OPT_OPTARG, NULL, (intptr_t)"traditional", Z },
 		{ OPTION_STRING, 0, "ignore-submodules", &ignore_submodule_arg, N_("when"),
 		  N_("ignore changes to submodules, optional when: all, dirty, untracked. (Default: all)"),
-		  PARSE_OPT_OPTARG, NULL, (intptr_t)"all" },
+		  PARSE_OPT_OPTARG, NULL, (intptr_t)"all", Z },
 		OPT_COLUMN(0, "column", &s.colopts, N_("list untracked files in columns")),
 		OPT_BOOL(0, "no-renames", &no_renames, N_("do not detect renames")),
 		OPT_CALLBACK_F('M', "find-renames", &rename_score_arg,
@@ -1515,7 +1518,7 @@ int cmd_commit(int argc, const char **argv, const char *prefix)
 		OPT_CLEANUP(&cleanup_arg),
 		OPT_BOOL(0, "status", &include_status, N_("include status in commit message template")),
 		{ OPTION_STRING, 'S', "gpg-sign", &sign_commit, N_("key-id"),
-		  N_("GPG sign commit"), PARSE_OPT_OPTARG, NULL, (intptr_t) "" },
+		  N_("GPG sign commit"), PARSE_OPT_OPTARG, NULL, (intptr_t) "", Z },
 		/* end commit message options */
 
 		OPT_GROUP(N_("Commit contents options")),
@@ -1540,7 +1543,7 @@ int cmd_commit(int argc, const char **argv, const char *prefix)
 			 N_("terminate entries with NUL")),
 		OPT_BOOL(0, "amend", &amend, N_("amend previous commit")),
 		OPT_BOOL(0, "no-post-rewrite", &no_post_rewrite, N_("bypass post-rewrite hook")),
-		{ OPTION_STRING, 'u', "untracked-files", &untracked_files_arg, N_("mode"), N_("show untracked files, optional modes: all, normal, no. (Default: all)"), PARSE_OPT_OPTARG, NULL, (intptr_t)"all" },
+		{ OPTION_STRING, 'u', "untracked-files", &untracked_files_arg, N_("mode"), N_("show untracked files, optional modes: all, normal, no. (Default: all)"), PARSE_OPT_OPTARG, NULL, (intptr_t)"all", Z },
 		OPT_PATHSPEC_FROM_FILE(&pathspec_from_file),
 		OPT_PATHSPEC_FILE_NUL(&pathspec_file_nul),
 		/* end commit contents options */

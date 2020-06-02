@@ -1659,6 +1659,10 @@ void repo_format_commit_message(struct repository *r,
 		.pretty_ctx = pretty_ctx,
 		.wrap_start = sb->len
 	};
+	memset(&context, 0, sizeof context);
+	context.commit = commit;
+	context.pretty_ctx = pretty_ctx;
+	context.wrap_start = sb->len;
 	const char *output_enc = pretty_ctx->output_encoding;
 	const char *utf8 = "UTF-8";
 
@@ -2013,6 +2017,7 @@ void pp_commit_easy(enum cmit_fmt fmt, const struct commit *commit,
 		    struct strbuf *sb)
 {
 	struct pretty_print_context pp = {0};
+	memset(&pp, 0, sizeof pp);
 	pp.fmt = fmt;
 	pretty_print_commit(&pp, commit, sb);
 }

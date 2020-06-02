@@ -537,7 +537,7 @@ int cmd_init_db(int argc, const char **argv, const char *prefix)
 		{ OPTION_CALLBACK, 0, "shared", &init_shared_repository,
 			N_("permissions"),
 			N_("specify that the git repository is to be shared amongst several users"),
-			PARSE_OPT_OPTARG | PARSE_OPT_NONEG, shared_callback, 0},
+			PARSE_OPT_OPTARG | PARSE_OPT_NONEG, shared_callback, 0, Z},
 		OPT_BIT('q', "quiet", &flags, N_("be quiet"), INIT_DB_QUIET),
 		OPT_STRING(0, "separate-git-dir", &real_git_dir, N_("gitdir"),
 			   N_("separate git dir from working tree")),

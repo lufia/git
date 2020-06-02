@@ -831,6 +831,7 @@ static void reassemble_patch(struct add_p_state *s,
 	for (i = file_diff->mode_change; i < file_diff->hunk_nr; i++) {
 		struct hunk merged = { 0 };
 
+		memset(&merged, 0, sizeof merged);
 		hunk = file_diff->hunk + i;
 		if (!use_all && hunk->use != USE_HUNK)
 			delta += hunk->header.old_count
@@ -1621,10 +1622,13 @@ int run_add_p(struct repository *r, enum add_p_mode mode,
 	      const char *revision, const struct pathspec *ps)
 {
 	struct add_p_state s = {
-		{ r }, STRBUF_INIT, STRBUF_INIT, STRBUF_INIT, STRBUF_INIT
+		{ r, }, STRBUF_INIT, STRBUF_INIT, STRBUF_INIT, STRBUF_INIT,
+		NULL, 0, NULL, NULL,
 	};
 	size_t i, binary_count = 0;
 
+	memset(&s.s, 0, sizeof s.s);
+	s.s.r = r;
 	init_add_i_state(&s.s, r);
 
 	if (mode == ADD_P_STASH)

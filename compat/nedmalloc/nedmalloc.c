@@ -874,6 +874,7 @@ struct mallinfo nedpmallinfo(nedpool *p) THROWSPEC
 {
 	int n;
 	struct mallinfo ret={0};
+	memset(&ret, 0, sizeof ret);
 	if(!p) { p=&syspool; if(!syspool.threads) InitPool(&syspool, 0, -1); }
 	for(n=0; p->m[n]; n++)
 	{

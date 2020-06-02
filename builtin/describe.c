@@ -570,10 +570,10 @@ int cmd_describe(int argc, const char **argv, const char *prefix)
 			N_("show abbreviated commit object as fallback")),
 		{OPTION_STRING, 0, "dirty",  &dirty, N_("mark"),
 			N_("append <mark> on dirty working tree (default: \"-dirty\")"),
-			PARSE_OPT_OPTARG, NULL, (intptr_t) "-dirty"},
+			PARSE_OPT_OPTARG, NULL, (intptr_t) "-dirty", Z},
 		{OPTION_STRING, 0, "broken",  &broken, N_("mark"),
 			N_("append <mark> on broken working tree (default: \"-broken\")"),
-			PARSE_OPT_OPTARG, NULL, (intptr_t) "-broken"},
+			PARSE_OPT_OPTARG, NULL, (intptr_t) "-broken", Z},
 		OPT_END(),
 	};
 

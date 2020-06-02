@@ -371,6 +371,7 @@ static int show_ambiguous_object(const struct object_id *oid, void *data)
 		struct commit *commit = lookup_commit(ds->repo, oid);
 		if (commit) {
 			struct pretty_print_context pp = {0};
+			memset(&pp, 0, sizeof pp);
 			pp.date_mode.type = DATE_SHORT;
 			format_commit_message(commit, " %ad - %s", &desc, &pp);
 		}

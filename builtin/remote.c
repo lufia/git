@@ -819,6 +819,7 @@ static int rm(int argc, const char **argv)
 	struct branches_for_remote cb_data;
 	int i, result;
 
+	memset(&known_remotes, 0, sizeof known_remotes);
 	memset(&cb_data, 0, sizeof(cb_data));
 	cb_data.branches = &branches;
 	cb_data.skipped = &skipped;

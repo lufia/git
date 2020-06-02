@@ -137,7 +137,7 @@ int cmd_read_tree(int argc, const char **argv, const char *cmd_prefix)
 			 N_("same as -m, but discard unmerged entries")),
 		{ OPTION_STRING, 0, "prefix", &opts.prefix, N_("<subdirectory>/"),
 		  N_("read the tree into the index under <subdirectory>/"),
-		  PARSE_OPT_NONEG },
+		  PARSE_OPT_NONEG, Z },
 		OPT_BOOL('u', NULL, &opts.update,
 			 N_("update working tree with merge result")),
 		OPT_CALLBACK_F(0, "exclude-per-directory", &opts,

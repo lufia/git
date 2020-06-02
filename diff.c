@@ -587,6 +587,9 @@ static unsigned long diff_filespec_size(struct repository *r,
 {
 	struct diff_populate_filespec_options dpf_options = {
 		.check_size_only = 1,
+		.check_binary = 0,
+		.missing_object_cb = NULL,
+		.missing_object_data = NULL,
 	};
 
 	if (!DIFF_FILE_VALID(one))
@@ -3350,6 +3353,8 @@ int diff_filespec_is_binary(struct repository *r,
 		.check_binary = 1,
 	};
 
+	memset(&dpf_options, 0, sizeof dpf_options);
+	dpf_options.check_binary = 1;
 	if (one->is_binary == -1) {
 		diff_filespec_load_driver(one, r->index);
 		if (one->driver->binary != -1)
@@ -4027,6 +4032,8 @@ int diff_populate_filespec(struct repository *r,
 			.sizep = &s->size
 		};
 
+		memset(&info, 0, sizeof info);
+		info.sizep = &s->size;
 		if (!(size_only || check_binary))
 			/*
 			 * Set contentp, since there is no chance that merely
@@ -6455,6 +6462,7 @@ static int diff_filespec_check_stat_unmatch(struct repository *r,
 {
 	struct diff_populate_filespec_options dpf_options = {
 		.check_size_only = 1,
+		.check_binary = 0,
 		.missing_object_cb = diff_queued_diff_prefetch,
 		.missing_object_data = r,
 	};

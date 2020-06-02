@@ -3145,6 +3145,7 @@ static void parse_ls(const char *p, struct branch *b)
 	struct tree_entry *root = NULL;
 	struct tree_entry leaf = {NULL};
 
+	memset(&leaf, 0, sizeof leaf);
 	/* ls SP (<tree-ish> SP)? <path> */
 	if (*p == '"') {
 		if (!b)

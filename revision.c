@@ -1697,6 +1697,7 @@ void add_index_objects_to_pending(struct rev_info *revs, unsigned int flags)
 		struct worktree *wt = *p;
 		struct index_state istate = { NULL };
 
+		memset(&istate, 0, sizeof istate);
 		if (wt->is_current)
 			continue; /* current index already taken care of */
 
@@ -3584,6 +3585,8 @@ static void merge_queue_into_list(struct prio_queue *q, struct commit_list **lis
 static enum rewrite_result rewrite_one(struct rev_info *revs, struct commit **pp)
 {
 	struct prio_queue queue = { compare_commits_by_commit_date };
+	memset(&queue, 0, sizeof queue);
+	queue.compare = compare_commits_by_commit_date;
 	enum rewrite_result ret = rewrite_one_1(revs, pp, &queue);
 	merge_queue_into_list(&queue, &revs->commits);
 	clear_prio_queue(&queue);

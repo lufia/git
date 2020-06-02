@@ -107,6 +107,7 @@ static int repo_init_gitdir(struct repository *repo, const char *gitdir)
 	const char *resolved_gitdir;
 	struct set_gitdir_args args = { NULL };
 
+	memset(&args, 0, sizeof args);
 	abspath = real_pathdup(gitdir, 0);
 	if (!abspath) {
 		ret = -1;

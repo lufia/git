@@ -160,6 +160,7 @@ void shortlog_add_commit(struct shortlog *log, struct commit *commit)
 	struct pretty_print_context ctx = {0};
 	const char *fmt;
 
+	memset(&ctx, 0, sizeof ctx);
 	ctx.fmt = CMIT_FMT_USERFORMAT;
 	ctx.abbrev = log->abbrev;
 	ctx.print_email_subject = 1;
@@ -255,7 +256,7 @@ void shortlog_init(struct shortlog *log)
 
 int cmd_shortlog(int argc, const char **argv, const char *prefix)
 {
-	struct shortlog log = { STRING_LIST_INIT_NODUP };
+	struct shortlog log = { STRING_LIST_INIT_NODUP, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 	struct rev_info rev;
 	int nongit = !startup_info->have_repository;
 

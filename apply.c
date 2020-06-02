@@ -4076,6 +4076,8 @@ static int build_fake_ancestor(struct apply_state *state, struct patch *list)
 	struct lock_file lock = LOCK_INIT;
 	int res;
 
+	memset(&result, 0, sizeof result);
+
 	/* Once we start supporting the reverse patch, it may be
 	 * worth showing the new sha1 prefix, but until then...
 	 */

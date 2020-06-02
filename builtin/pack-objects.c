@@ -3228,6 +3228,8 @@ static void get_object_list(int ac, const char **av)
 	int flags = 0;
 	int save_warning;
 
+	memset(&s_r_opt, 0, sizeof s_r_opt);
+	s_r_opt.allow_exclude_promisor_objects = 1;
 	repo_init_revisions(the_repository, &revs, NULL);
 	save_commit_buffer = 0;
 	setup_revisions(ac, av, &revs, &s_r_opt);

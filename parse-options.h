@@ -59,15 +59,6 @@ enum parse_opt_result {
 	PARSE_OPT_UNKNOWN
 };
 
-enum parse_opt_result {
-	PARSE_OPT_COMPLETE = -3,
-	PARSE_OPT_HELP = -2,
-	PARSE_OPT_ERROR = -1,	/* must be the same as error() */
-	PARSE_OPT_DONE = 0,	/* fixed so that "return 0" works */
-	PARSE_OPT_NON_OPTION,
-	PARSE_OPT_UNKNOWN
-};
-
 struct option;
 typedef int parse_opt_cb(const struct option *, const char *arg, int unset);
 
@@ -148,66 +139,69 @@ struct option {
 	intptr_t defval;
 	parse_opt_ll_cb *ll_callback;
 	intptr_t extra;
+	int d0, d1, d2, d3, d4; // dummy
 };
 
+#define Z 0,0,0,0,0
+
 #define OPT_BIT_F(s, l, v, h, b, f) { OPTION_BIT, (s), (l), (v), NULL, (h), \
-				      PARSE_OPT_NOARG|(f), NULL, (b) }
+				      PARSE_OPT_NOARG|(f), NULL, (b), Z }
 #define OPT_COUNTUP_F(s, l, v, h, f) { OPTION_COUNTUP, (s), (l), (v), NULL, \
-				       (h), PARSE_OPT_NOARG|(f) }
+				       (h), PARSE_OPT_NOARG|(f), Z }
 #define OPT_SET_INT_F(s, l, v, h, i, f) { OPTION_SET_INT, (s), (l), (v), NULL, \
-					  (h), PARSE_OPT_NOARG | (f), NULL, (i) }
+					  (h), PARSE_OPT_NOARG | (f), NULL, (i), Z }
 #define OPT_BOOL_F(s, l, v, h, f)   OPT_SET_INT_F(s, l, v, h, 1, f)
 #define OPT_CALLBACK_F(s, l, v, a, h, f, cb)			\
-	{ OPTION_CALLBACK, (s), (l), (v), (a), (h), (f), (cb) }
-#define OPT_STRING_F(s, l, v, a, h, f)   { OPTION_STRING,  (s), (l), (v), (a), (h), (f) }
-#define OPT_INTEGER_F(s, l, v, h, f)     { OPTION_INTEGER, (s), (l), (v), N_("n"), (h), (f) }
+	{ OPTION_CALLBACK, (s), (l), (v), (a), (h), (f), (cb), Z }
+#define OPT_STRING_F(s, l, v, a, h, f)   { OPTION_STRING,  (s), (l), (v), (a), (h), (f), Z }
+#define OPT_INTEGER_F(s, l, v, h, f)     { OPTION_INTEGER, (s), (l), (v), N_("n"), (h), (f), Z }
 
 #define OPT_END()                   { OPTION_END }
 #define OPT_ARGUMENT(l, v, h)       { OPTION_ARGUMENT, 0, (l), (v), NULL, \
-				      (h), PARSE_OPT_NOARG, NULL, 1 }
-#define OPT_GROUP(h)                { OPTION_GROUP, 0, NULL, NULL, NULL, (h) }
+				      (h), PARSE_OPT_NOARG, NULL, 1, Z }
+#define OPT_GROUP(h)                { OPTION_GROUP, 0, NULL, NULL, NULL, (h), Z }
 #define OPT_BIT(s, l, v, h, b)      OPT_BIT_F(s, l, v, h, b, 0)
 #define OPT_BITOP(s, l, v, h, set, clear) { OPTION_BITOP, (s), (l), (v), NULL, (h), \
 					    PARSE_OPT_NOARG|PARSE_OPT_NONEG, NULL, \
-					    (set), NULL, (clear) }
+					    (set), NULL, (clear), Z }
 #define OPT_NEGBIT(s, l, v, h, b)   { OPTION_NEGBIT, (s), (l), (v), NULL, \
-				      (h), PARSE_OPT_NOARG, NULL, (b) }
+				      (h), PARSE_OPT_NOARG, NULL, (b), Z }
 #define OPT_COUNTUP(s, l, v, h)     OPT_COUNTUP_F(s, l, v, h, 0)
 #define OPT_SET_INT(s, l, v, h, i)  OPT_SET_INT_F(s, l, v, h, i, 0)
 #define OPT_BOOL(s, l, v, h)        OPT_BOOL_F(s, l, v, h, 0)
 #define OPT_HIDDEN_BOOL(s, l, v, h) { OPTION_SET_INT, (s), (l), (v), NULL, \
-				      (h), PARSE_OPT_NOARG | PARSE_OPT_HIDDEN, NULL, 1}
+				      (h), PARSE_OPT_NOARG | PARSE_OPT_HIDDEN, NULL, 1, Z}
 #define OPT_CMDMODE(s, l, v, h, i)  { OPTION_SET_INT, (s), (l), (v), NULL, \
-				      (h), PARSE_OPT_CMDMODE|PARSE_OPT_NOARG|PARSE_OPT_NONEG, NULL, (i) }
+				      (h), PARSE_OPT_CMDMODE|PARSE_OPT_NOARG|PARSE_OPT_NONEG, NULL, (i), Z }
 #define OPT_INTEGER(s, l, v, h)     OPT_INTEGER_F(s, l, v, h, 0)
 #define OPT_MAGNITUDE(s, l, v, h)   { OPTION_MAGNITUDE, (s), (l), (v), \
-				      N_("n"), (h), PARSE_OPT_NONEG }
+				      N_("n"), (h), PARSE_OPT_NONEG, Z }
 #define OPT_STRING(s, l, v, a, h)   OPT_STRING_F(s, l, v, a, h, 0)
 #define OPT_STRING_LIST(s, l, v, a, h) \
 				    { OPTION_CALLBACK, (s), (l), (v), (a), \
-				      (h), 0, &parse_opt_string_list }
+				      (h), 0, &parse_opt_string_list, Z }
 #define OPT_UYN(s, l, v, h)         { OPTION_CALLBACK, (s), (l), (v), NULL, \
-				      (h), PARSE_OPT_NOARG, &parse_opt_tertiary }
+				      (h), PARSE_OPT_NOARG, &parse_opt_tertiary, Z }
 #define OPT_EXPIRY_DATE(s, l, v, h) \
 	{ OPTION_CALLBACK, (s), (l), (v), N_("expiry-date"),(h), 0,	\
-	  parse_opt_expiry_date_cb }
+	  parse_opt_expiry_date_cb, Z }
 #define OPT_CALLBACK(s, l, v, a, h, f) OPT_CALLBACK_F(s, l, v, a, h, 0, f)
 #define OPT_NUMBER_CALLBACK(v, h, f) \
 	{ OPTION_NUMBER, 0, NULL, (v), NULL, (h), \
-	  PARSE_OPT_NOARG | PARSE_OPT_NONEG, (f) }
+	  PARSE_OPT_NOARG | PARSE_OPT_NONEG, (f), Z }
 #define OPT_FILENAME(s, l, v, h)    { OPTION_FILENAME, (s), (l), (v), \
-				       N_("file"), (h) }
+				       N_("file"), (h), Z }
 #define OPT_COLOR_FLAG(s, l, v, h) \
 	{ OPTION_CALLBACK, (s), (l), (v), N_("when"), (h), PARSE_OPT_OPTARG, \
-		parse_opt_color_flag_cb, (intptr_t)"always" }
+		parse_opt_color_flag_cb, (intptr_t)"always", Z }
 
 #define OPT_NOOP_NOARG(s, l) \
 	{ OPTION_CALLBACK, (s), (l), NULL, NULL, \
 	  N_("no-op (backward compatibility)"),		\
-	  PARSE_OPT_HIDDEN | PARSE_OPT_NOARG, parse_opt_noop_cb }
+	  PARSE_OPT_HIDDEN | PARSE_OPT_NOARG, parse_opt_noop_cb, Z }
 
 #define OPT_ALIAS(s, l, source_long_name) \
-	{ OPTION_ALIAS, (s), (l), (source_long_name) }
+	{ OPTION_ALIAS, (s), (l), (source_long_name), NULL, NULL, 0, NULL, Z }
 
 /*
  * parse_options() will filter out the processed options and leave the
@@ -316,27 +310,27 @@ int parse_opt_passthru_argv(const struct option *, const char *, int);
 #define OPT__QUIET(var, h)    OPT_COUNTUP('q', "quiet",   (var), (h))
 #define OPT__VERBOSITY(var) \
 	{ OPTION_CALLBACK, 'v', "verbose", (var), NULL, N_("be more verbose"), \
-	  PARSE_OPT_NOARG, &parse_opt_verbosity_cb, 0 }, \
+	  PARSE_OPT_NOARG, &parse_opt_verbosity_cb, 0, Z }, \
 	{ OPTION_CALLBACK, 'q', "quiet", (var), NULL, N_("be more quiet"), \
-	  PARSE_OPT_NOARG, &parse_opt_verbosity_cb, 0 }
+	  PARSE_OPT_NOARG, &parse_opt_verbosity_cb, 0, Z }
 #define OPT__DRY_RUN(var, h)  OPT_BOOL('n', "dry-run", (var), (h))
 #define OPT__FORCE(var, h, f) OPT_COUNTUP_F('f', "force",   (var), (h), (f))
 #define OPT__ABBREV(var)  \
 	{ OPTION_CALLBACK, 0, "abbrev", (var), N_("n"),	\
 	  N_("use <n> digits to display SHA-1s"),	\
-	  PARSE_OPT_OPTARG, &parse_opt_abbrev_cb, 0 }
+	  PARSE_OPT_OPTARG, &parse_opt_abbrev_cb, 0, Z }
 #define OPT__COLOR(var, h) \
 	OPT_COLOR_FLAG(0, "color", (var), (h))
 #define OPT_COLUMN(s, l, v, h) \
-	{ OPTION_CALLBACK, (s), (l), (v), N_("style"), (h), PARSE_OPT_OPTARG, parseopt_column_callback }
+	{ OPTION_CALLBACK, (s), (l), (v), N_("style"), (h), PARSE_OPT_OPTARG, parseopt_column_callback, Z }
 #define OPT_PASSTHRU(s, l, v, a, h, f) \
-	{ OPTION_CALLBACK, (s), (l), (v), (a), (h), (f), parse_opt_passthru }
+	{ OPTION_CALLBACK, (s), (l), (v), (a), (h), (f), parse_opt_passthru, Z }
 #define OPT_PASSTHRU_ARGV(s, l, v, a, h, f) \
-	{ OPTION_CALLBACK, (s), (l), (v), (a), (h), (f), parse_opt_passthru_argv }
+	{ OPTION_CALLBACK, (s), (l), (v), (a), (h), (f), parse_opt_passthru_argv, Z }
 #define _OPT_CONTAINS_OR_WITH(name, variable, help, flag) \
 	{ OPTION_CALLBACK, 0, name, (variable), N_("commit"), (help), \
 	  PARSE_OPT_LASTARG_DEFAULT | flag, \
-	  parse_opt_commits, (intptr_t) "HEAD" \
+	  parse_opt_commits, (intptr_t) "HEAD", Z \
 	}
 #define OPT_CONTAINS(v, h) _OPT_CONTAINS_OR_WITH("contains", v, h, PARSE_OPT_NONEG)
 #define OPT_NO_CONTAINS(v, h) _OPT_CONTAINS_OR_WITH("no-contains", v, h, PARSE_OPT_NONEG)

@@ -56,6 +56,7 @@ static int should_break(struct repository *r,
 			     * is the default.
 			     */
 
+	memset(&options, 0, sizeof options);
 	if (S_ISREG(src->mode) != S_ISREG(dst->mode)) {
 		*merge_score_p = (int)MAX_SCORE;
 		return 1; /* even their types are different */

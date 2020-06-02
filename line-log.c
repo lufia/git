@@ -332,6 +332,7 @@ static int collect_diff(mmfile_t *parent, mmfile_t *target, struct diff_ranges *
 	xdemitconf_t xecfg;
 	xdemitcb_t ecb;
 
+	memset(&cbdata, 0, sizeof cbdata);
 	memset(&xpp, 0, sizeof(xpp));
 	memset(&xecfg, 0, sizeof(xecfg));
 	xecfg.ctxlen = xecfg.interhunkctxlen = 0;

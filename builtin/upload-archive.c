@@ -79,6 +79,8 @@ int cmd_upload_archive(int argc, const char **argv, const char *prefix)
 {
 	struct child_process writer = { argv };
 
+	memset(&writer, 0, sizeof writer);
+	writer.argv = argv;
 	if (argc == 2 && !strcmp(argv[1], "-h"))
 		usage(upload_archive_usage);
 

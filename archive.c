@@ -45,6 +45,7 @@ static void format_subst(const struct commit *commit,
 	ctx.date_mode.type = DATE_NORMAL;
 	ctx.abbrev = DEFAULT_ABBREV;
 
+	memset(&ctx, 0, sizeof ctx);
 	if (src == buf->buf)
 		to_free = strbuf_detach(buf, NULL);
 	for (;;) {

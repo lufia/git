@@ -653,6 +653,7 @@ static int fsck_tree(const struct object_id *oid,
 	const char *o_name;
 	struct name_stack df_dup_candidates = { NULL };
 
+	memset(&df_dup_candidates, 0, sizeof df_dup_candidates);
 	if (init_tree_desc_gently(&desc, buffer, size)) {
 		retval += report(options, oid, OBJ_TREE, FSCK_MSG_BAD_TREE, "cannot be parsed as a tree");
 		return retval;
@@ -1178,6 +1179,7 @@ static int fsck_blob(const struct object_id *oid, const char *buf,
 	struct fsck_gitmodules_data data;
 	struct config_options config_opts = { 0 };
 
+	memset(&config_opts, 0, sizeof config_opts);
 	if (!oidset_contains(&gitmodules_found, oid))
 		return 0;
 	oidset_insert(&gitmodules_done, oid);

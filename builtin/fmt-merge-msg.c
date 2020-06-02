@@ -16,11 +16,11 @@ int cmd_fmt_merge_msg(int argc, const char **argv, const char *prefix)
 	struct option options[] = {
 		{ OPTION_INTEGER, 0, "log", &shortlog_len, N_("n"),
 		  N_("populate log with at most <n> entries from shortlog"),
-		  PARSE_OPT_OPTARG, NULL, DEFAULT_MERGE_LOG_LEN },
+		  PARSE_OPT_OPTARG, NULL, DEFAULT_MERGE_LOG_LEN, Z },
 		{ OPTION_INTEGER, 0, "summary", &shortlog_len, N_("n"),
 		  N_("alias for --log (deprecated)"),
 		  PARSE_OPT_OPTARG | PARSE_OPT_HIDDEN, NULL,
-		  DEFAULT_MERGE_LOG_LEN },
+		  DEFAULT_MERGE_LOG_LEN, Z },
 		OPT_STRING('m', "message", &message, N_("text"),
 			N_("use <text> as start of message")),
 		OPT_FILENAME('F', "file", &inpath, N_("file to read from")),

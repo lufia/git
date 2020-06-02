@@ -1054,8 +1054,12 @@ struct repository_format {
 #define REPOSITORY_FORMAT_INIT \
 { \
 	.version = -1, \
+	.precious_objects = 0, \
+	.partial_clone = NULL, \
+	.worktree_config = 0, \
 	.is_bare = -1, \
 	.hash_algo = GIT_HASH_SHA1, \
+	.work_tree = NULL, \
 	.unknown_extensions = STRING_LIST_INIT_DUP, \
 }
 

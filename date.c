@@ -288,6 +288,8 @@ const char *show_date(timestamp_t time, int tz, const struct date_mode *mode)
 	int human_tz = -1;
 	static struct strbuf timebuf = STRBUF_INIT;
 
+	memset(&tmbuf, 0, sizeof tmbuf);
+	memset(&human_tm, 0, sizeof human_tm);
 	if (mode->type == DATE_UNIX) {
 		strbuf_reset(&timebuf);
 		strbuf_addf(&timebuf, "%"PRItime, time);
@@ -999,6 +1001,7 @@ void datestamp(struct strbuf *out)
 	int offset;
 	struct tm tm = { 0 };
 
+	memset(&tm, 0, sizeof tm);
 	time(&now);
 
 	offset = tm_to_time_t(localtime_r(&now, &tm)) - now;

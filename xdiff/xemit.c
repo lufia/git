@@ -169,7 +169,7 @@ int xdl_emit_diff(xdfenv_t *xe, xdchange_t *xscr, xdemitcb_t *ecb,
 	long s1, s2, e1, e2, lctx;
 	xdchange_t *xch, *xche;
 	long funclineprev = -1;
-	struct func_line func_line = { 0 };
+	struct func_line func_line = { 0, {0} };
 
 	for (xch = xscr; xch; xch = xche->next) {
 		xdchange_t *xchp = xch;

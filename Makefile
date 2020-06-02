@@ -561,6 +561,7 @@ AR = ar
 RM = rm -f
 DIFF = diff
 TAR = tar
+TAR_EXTRACT_STDIN = $(TAR) xof -
 FIND = find
 INSTALL = install
 TCL_PATH = tclsh
@@ -2173,10 +2174,14 @@ version.sp version.s version.o: EXTRA_CPPFLAGS = \
 
 $(BUILT_INS): git$X $(COMPAT_PROGRAMS)
 	$(QUIET_BUILT_IN)$(RM) $@ && \
+	test -z "$(NO_INSTALL_HARDLINKS)$(NO_CROSS_DIRECTORY_HARDLINKS)" && \
 	ln $< $@ 2>/dev/null || \
-	ln -s $< $@ 2>/dev/null || \
-	cp exec-wrapper$X $@ 2>/dev/null || \
-	cp $< $@
+	{ test -n "$(INSTALL_SYMLINKS)" && \
+	  ln -s $< $@ 2>/dev/null || \
+	  { test -n "$(USE_EXEC_WRAPPER)" && \
+	    cp exec-wrapper$X $@ 2>/dev/null || \
+	    cp $< $@; } \
+	}
 
 config-list.h: generate-configlist.sh
 
@@ -2513,7 +2518,7 @@ git-%$X: %.o GIT-LDFLAGS $(GITLIBS)
 	$(QUIET_LINK)$(LD) -o $@ $(ALL_LDFLAGS) $(filter %.o,$^) $(LIBS)
 
 git-bugreport$X: bugreport.o GIT-LDFLAGS $(GITLIBS)
-	$(QUIET_LINK)$(CC) $(ALL_CFLAGS) -o $@ $(ALL_LDFLAGS) $(filter %.o,$^) \
+	$(QUIET_LINK)$(LD) -o $@ $(ALL_LDFLAGS) $(filter %.o,$^) \
 		$(LIBS)
 
 git-imap-send$X: imap-send.o $(IMAP_SEND_BUILDDEPS) GIT-LDFLAGS $(GITLIBS)
@@ -2980,12 +2985,12 @@ endif
 ifndef NO_GETTEXT
 	$(INSTALL) -d -m 755 '$(DESTDIR_SQ)$(localedir_SQ)'
 	(cd po/build/locale && $(TAR) cf - .) | \
-	(cd '$(DESTDIR_SQ)$(localedir_SQ)' && umask 022 && $(TAR) xof -)
+	(cd '$(DESTDIR_SQ)$(localedir_SQ)' && umask 022 && $(TAR_EXTRACT_STDIN))
 endif
 ifndef NO_PERL
 	$(INSTALL) -d -m 755 '$(DESTDIR_SQ)$(perllibdir_SQ)'
 	(cd perl/build/lib && $(TAR) cf - .) | \
-	(cd '$(DESTDIR_SQ)$(perllibdir_SQ)' && umask 022 && $(TAR) xof -)
+	(cd '$(DESTDIR_SQ)$(perllibdir_SQ)' && umask 022 && $(TAR_EXTRACT_STDIN))
 	$(MAKE) -C gitweb install
 endif
 ifndef NO_TCLTK
@@ -3015,9 +3020,11 @@ endif
 		ln -s "git$X" "$$bindir/$$p" || \
 		{ test -z "$(NO_INSTALL_HARDLINKS)" && \
 		  ln "$$bindir/git$X" "$$bindir/$$p" 2>/dev/null || \
-		  ln -s "git$X" "$$bindir/$$p" 2>/dev/null || \
-		  cp "exec-wrapper$X" "$$execdir/$$p" 2>/dev/null || \
-		  cp "$$bindir/git$X" "$$bindir/$$p" || exit; } \
+		  { test -n "$(USE_EXEC_WRAPPER)" && \
+		    cp "exec-wrapper$X" "$$execdir/$$p" 2>/dev/null || \
+		    ln -s "git$X" "$$bindir/$$p" 2>/dev/null || \
+		    cp "$$bindir/git$X" "$$bindir/$$p" || exit; } \
+		} \
 	done && \
 	for p in $(BUILT_INS); do \
 		$(RM) "$$execdir/$$p" && \
@@ -3025,9 +3032,11 @@ endif
 		ln -s "$$destdir_from_execdir_SQ/$(bindir_relative_SQ)/git$X" "$$execdir/$$p" || \
 		{ test -z "$(NO_INSTALL_HARDLINKS)" && \
 		  ln "$$execdir/git$X" "$$execdir/$$p" 2>/dev/null || \
-		  ln -s "git$X" "$$execdir/$$p" 2>/dev/null || \
-		  cp "exec-wrapper$X" "$$execdir/$$p" 2>/dev/null || \
-		  cp "$$execdir/git$X" "$$execdir/$$p" || exit; } \
+		  { test -n "$(USE_EXEC_WRAPPER)" && \
+		    cp "exec-wrapper$X" "$$execdir/$$p" 2>/dev/null || \
+		    ln -s "git$X" "$$execdir/$$p" 2>/dev/null || \
+		    cp "$$execdir/git$X" "$$execdir/$$p" || exit; } \
+		} \
 	done && \
 	remote_curl_aliases="$(REMOTE_CURL_ALIASES)" && \
 	for p in $$remote_curl_aliases; do \
@@ -3055,7 +3064,7 @@ install-man: install-man-perl
 install-man-perl: man-perl
 	$(INSTALL) -d -m 755 '$(DESTDIR_SQ)$(mandir_SQ)/man3'
 	(cd perl/build/man/man3 && $(TAR) cf - .) | \
-	(cd '$(DESTDIR_SQ)$(mandir_SQ)/man3' && umask 022 && $(TAR) xof -)
+	(cd '$(DESTDIR_SQ)$(mandir_SQ)/man3' && umask 022 && $(TAR_EXTRACT_STDIN))
 
 install-html:
 	$(MAKE) -C Documentation install-html

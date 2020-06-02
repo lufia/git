@@ -889,6 +889,7 @@ int cmd_blame(int argc, const char **argv, const char *prefix)
 	dashdash_pos = 0;
 	show_progress = -1;
 
+	memset(&pi, 0, sizeof pi);
 	parse_options_start(&ctx, argc, argv, prefix, options,
 			    PARSE_OPT_KEEP_DASHDASH | PARSE_OPT_KEEP_ARGV0);
 	for (;;) {

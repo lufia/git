@@ -1536,7 +1536,7 @@ static int module_update_module_mode(int argc, const char **argv, const char *pr
 {
 	const char *path, *update = NULL;
 	int just_cloned;
-	struct submodule_update_strategy update_strategy = { .type = SM_UPDATE_CHECKOUT };
+	struct submodule_update_strategy update_strategy = { .type = SM_UPDATE_CHECKOUT, .command = NULL };
 
 	if (argc < 3 || argc > 4)
 		die("submodule--helper update-module-clone expects <just-cloned> <path> [<update>]");
@@ -1565,7 +1565,7 @@ struct submodule_update_clone {
 	/* index into 'list', the list of submodules to look into for cloning */
 	int current;
 	struct module_list list;
-	unsigned warn_if_uninitialized : 1;
+	unsigned warn_if_uninitialized;
 
 	/* update parameter passed via commandline */
 	struct submodule_update_strategy update;
@@ -1587,7 +1587,7 @@ struct submodule_update_clone {
 	int update_clone_nr; int update_clone_alloc;
 
 	/* If we want to stop as fast as possible and return an error */
-	unsigned quickstop : 1;
+	unsigned quickstop;
 
 	/* failed clones to be retried again */
 	const struct cache_entry **failed_clones;
@@ -1596,11 +1596,25 @@ struct submodule_update_clone {
 	int max_jobs;
 };
 #define SUBMODULE_UPDATE_CLONE_INIT { \
+	.current = 0, \
 	.list = MODULE_LIST_INIT, \
+	.warn_if_uninitialized = 0, \
 	.update = SUBMODULE_UPDATE_STRATEGY_INIT, \
+	.progress = 0, \
+	.quiet = 0, \
 	.recommend_shallow = -1, \
 	.references = STRING_LIST_INIT_DUP, \
+	.dissociate = 0, \
+	.require_init = 0, \
+	.depth = NULL, \
+	.recursive_prefix = NULL, \
+	.prefix = NULL, \
 	.single_branch = -1, \
+	.update_clone = NULL, \
+	.update_clone_nr = 0, .update_clone_alloc = 0, \
+	.quickstop = 0, \
+	.failed_clones = NULL, \
+	.failed_clones_nr = 0, .failed_clones_alloc = 0, \
 	.max_jobs = 1, \
 }
 

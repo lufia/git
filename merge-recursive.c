@@ -412,6 +412,7 @@ static int unpack_trees_start(struct merge_options *opt,
 	struct tree_desc t[3];
 	struct index_state tmp_index = { NULL };
 
+	memset(&tmp_index, 0, sizeof tmp_index);
 	memset(&opt->priv->unpack_opts, 0, sizeof(opt->priv->unpack_opts));
 	if (opt->priv->call_depth)
 		opt->priv->unpack_opts.index_only = 1;
@@ -1039,6 +1040,7 @@ static int merge_3way(struct merge_options *opt,
 	char *base, *name1, *name2;
 	int merge_status;
 
+	memset(&ll_opts, 0, sizeof ll_opts);
 	ll_opts.renormalize = opt->renormalize;
 	ll_opts.extra_marker_size = extra_marker_size;
 	ll_opts.xdl_opts = opt->xdl_opts;
@@ -1153,6 +1155,7 @@ static void print_commit(struct commit *commit)
 {
 	struct strbuf sb = STRBUF_INIT;
 	struct pretty_print_context ctx = {0};
+	memset(&ctx, 0, sizeof ctx);
 	ctx.date_mode.type = DATE_NORMAL;
 	format_commit_message(commit, " %h: %m %s", &sb, &ctx);
 	fprintf(stderr, "%s\n", sb.buf);

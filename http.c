@@ -1115,10 +1115,13 @@ void http_init(struct remote *remote, const char *url, int proactive_auth)
 	char *normalized_url;
 	struct urlmatch_config config = { STRING_LIST_INIT_DUP };
 
+	memset(&config.url, 0, sizeof config.url);
 	config.section = "http";
 	config.key = NULL;
 	config.collect_fn = http_options;
 	config.cascade_fn = git_default_config;
+	config.select_fn = NULL;
+	config.fallback_match_fn = NULL;
 	config.cb = NULL;
 
 	http_is_verbose = 0;
@@ -2133,6 +2136,7 @@ int http_fetch_ref(const char *base, struct ref *ref)
 	struct strbuf buffer = STRBUF_INIT;
 	int ret = -1;
 
+	memset(&options, 0, sizeof options);
 	options.no_cache = 1;
 
 	url = quote_ref_url(base, ref->name);
@@ -2226,6 +2230,7 @@ int http_get_info_packs(const char *base_url, struct packed_git **packs_head)
 	struct strbuf buf = STRBUF_INIT;
 	struct object_id oid;
 
+	memset(&options, 0, sizeof options);
 	end_url_with_slash(&buf, base_url);
 	strbuf_addstr(&buf, "objects/info/packs");
 	url = strbuf_detach(&buf, NULL);

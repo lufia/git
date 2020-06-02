@@ -184,6 +184,7 @@ static int cmd_import(const char *line)
 			startrev = 0;
 		} else {
 			struct rev_note note = { 0 };
+			memset(&note, 0, sizeof note);
 			if (parse_rev_note(note_msg, &note))
 				die("Revision number couldn't be parsed from note.");
 			startrev = note.rev_nr + 1;

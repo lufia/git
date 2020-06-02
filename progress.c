@@ -93,6 +93,7 @@ static void clear_progress_signal(void)
 	if (progress_testing)
 		return;
 
+	memset(&v, 0, sizeof v);
 	setitimer(ITIMER_REAL, &v, NULL);
 	signal(SIGALRM, SIG_IGN);
 	progress_update = 0;

@@ -115,7 +115,7 @@ static int run_sequencer(int argc, const char **argv, struct replay_opts *opts)
 		OPT_CALLBACK('X', "strategy-option", &opts, N_("option"),
 			N_("option for merge strategy"), option_parse_x),
 		{ OPTION_STRING, 'S', "gpg-sign", &opts->gpg_sign, N_("key-id"),
-		  N_("GPG sign commit"), PARSE_OPT_OPTARG, NULL, (intptr_t) "" },
+		  N_("GPG sign commit"), PARSE_OPT_OPTARG, NULL, (intptr_t) "", Z },
 		OPT_END()
 	};
 	struct option *options = base_options;

@@ -1,17 +1,12 @@
 #!/bin/sh
 
-if ! echo abc | sed 's/(ab)c/\1/' >/dev/null 2>&1
-then
-	alias sed='sed -E'
-fi
-
 die () {
 	echo "$@" >&2
 	exit 1
 }
 
 command_list () {
-	eval "grep -ve '^#' $exclude_programs" <"$1"
+	eval "grep -v -e '^#' $exclude_programs" <"$1"
 }
 
 get_categories () {
@@ -32,7 +27,7 @@ get_synopsis () {
 		/^NAME/,/'"$1"'/h
 		${
 			x
-			s/.*'"$1"' - (.*)/N_("\1")/
+			s/.*'"$1"' - \(.*\)/N_("\1")/
 			p
 		}' "Documentation/$1.txt"
 }

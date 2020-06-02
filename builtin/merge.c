@@ -251,7 +251,7 @@ static struct option builtin_merge_options[] = {
 	OPT_BOOL(0, "summary", &show_diffstat, N_("(synonym to --stat)")),
 	{ OPTION_INTEGER, 0, "log", &shortlog_len, N_("n"),
 	  N_("add (at most <n>) entries from shortlog to merge commit message"),
-	  PARSE_OPT_OPTARG, NULL, DEFAULT_MERGE_LOG_LEN },
+	  PARSE_OPT_OPTARG, NULL, DEFAULT_MERGE_LOG_LEN, Z },
 	OPT_BOOL(0, "squash", &squash,
 		N_("create a single commit instead of doing a merge")),
 	OPT_BOOL(0, "commit", &option_commit,
@@ -275,7 +275,7 @@ static struct option builtin_merge_options[] = {
 		option_parse_message),
 	{ OPTION_LOWLEVEL_CALLBACK, 'F', "file", &merge_msg, N_("path"),
 		N_("read message from file"), PARSE_OPT_NONEG,
-		NULL, 0, option_read_message },
+		NULL, 0, option_read_message, Z },
 	OPT__VERBOSITY(&verbosity),
 	OPT_BOOL(0, "abort", &abort_current_merge,
 		N_("abort the current in-progress merge")),
@@ -287,7 +287,7 @@ static struct option builtin_merge_options[] = {
 		 N_("allow merging unrelated histories")),
 	OPT_SET_INT(0, "progress", &show_progress, N_("force progress reporting"), 1),
 	{ OPTION_STRING, 'S', "gpg-sign", &sign_commit, N_("key-id"),
-	  N_("GPG sign commit"), PARSE_OPT_OPTARG, NULL, (intptr_t) "" },
+	  N_("GPG sign commit"), PARSE_OPT_OPTARG, NULL, (intptr_t) "", Z },
 	OPT_AUTOSTASH(&autostash),
 	OPT_BOOL(0, "overwrite-ignore", &overwrite_ignore, N_("update ignored files (default)")),
 	OPT_BOOL(0, "signoff", &signoff, N_("add Signed-off-by:")),
@@ -398,6 +398,7 @@ static void squash_message(struct commit *commit, struct commit_list *remotehead
 	struct commit_list *j;
 	struct pretty_print_context ctx = {0};
 
+	memset(&ctx, 0, sizeof ctx);
 	printf(_("Squash commit -- not updating HEAD\n"));
 
 	repo_init_revisions(the_repository, &rev, NULL);

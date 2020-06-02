@@ -125,6 +125,7 @@ static int read_patches(const char *range, struct string_list *list,
 			int linenr = 0;
 			int orig_len;
 
+			memset(&patch, 0, sizeof patch);
 			in_header = 0;
 			strbuf_addch(&buf, '\n');
 			if (!util->diff_offset)

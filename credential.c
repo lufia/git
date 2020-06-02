@@ -105,9 +105,10 @@ static int match_partial_url(const char *url, void *cb)
 static void credential_apply_config(struct credential *c)
 {
 	char *normalized_url;
-	struct urlmatch_config config = { STRING_LIST_INIT_DUP };
+	struct urlmatch_config config = { STRING_LIST_INIT_DUP, { NULL }, NULL, NULL, NULL, NULL, NULL, NULL, NULL };
 	struct strbuf url = STRBUF_INIT;
 
+	memset(&config.url, 0, sizeof config.url);
 	if (!c->host)
 		die(_("refusing to work with credential missing host field"));
 	if (!c->protocol)

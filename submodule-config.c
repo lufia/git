@@ -637,13 +637,14 @@ static void config_from_gitmodules(config_fn_t fn, struct repository *repo, void
 {
 	if (repo->worktree) {
 		struct git_config_source config_source = {
-			0, .scope = CONFIG_SCOPE_SUBMODULE
+			0, NULL, NULL, .scope = CONFIG_SCOPE_SUBMODULE
 		};
 		const struct config_options opts = { 0 };
 		struct object_id oid;
 		char *file;
 		char *oidstr = NULL;
 
+		memset(&opts, 0, sizeof opts);
 		file = repo_worktree_path(repo, GITMODULES_FILE);
 		if (file_exists(file)) {
 			config_source.file = file;

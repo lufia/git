@@ -143,6 +143,7 @@ static void show_commit(struct commit *commit, void *data)
 	if (revs->verbose_header) {
 		struct strbuf buf = STRBUF_INIT;
 		struct pretty_print_context ctx = {0};
+		memset(&ctx, 0, sizeof ctx);
 		ctx.abbrev = revs->abbrev;
 		ctx.date_mode = revs->date_mode;
 		ctx.date_mode_explicit = revs->date_mode_explicit;
@@ -466,6 +467,8 @@ int cmd_rev_list(int argc, const char **argv, const char *prefix)
 	int use_bitmap_index = 0;
 	const char *show_progress = NULL;
 
+	memset(&s_r_opt, 0, sizeof s_r_opt);
+	s_r_opt.allow_exclude_promisor_objects = 1;
 	if (argc == 2 && !strcmp(argv[1], "-h"))
 		usage(rev_list_usage);
 

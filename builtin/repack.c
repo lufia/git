@@ -331,6 +331,7 @@ int cmd_repack(int argc, const char **argv, const char *prefix)
 		OPT_END()
 	};
 
+	memset(&po_args, 0, sizeof po_args);
 	git_config(repack_config, NULL);
 
 	argc = parse_options(argc, argv, prefix, builtin_repack_options,

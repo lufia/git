@@ -350,6 +350,7 @@ static void shortlog(const char *name,
 	while ((commit = get_revision(rev)) != NULL) {
 		struct pretty_print_context ctx = {0};
 
+		memset(&ctx, 0, sizeof ctx);
 		if (commit->parents && commit->parents->next) {
 			/* do not list a merge but count committer */
 			if (opts->credit_people)
@@ -487,6 +488,7 @@ static void fmt_merge_msg_sigs(struct strbuf *out)
 		struct signature_check sigc = { NULL };
 		struct strbuf sig = STRBUF_INIT;
 
+		memset(&sigc, 0, sizeof sigc);
 		if (!buf || type != OBJ_TAG)
 			goto next;
 		len = parse_signature(buf, size);

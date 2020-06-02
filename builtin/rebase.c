@@ -105,6 +105,33 @@ struct rebase_options {
 #define REBASE_OPTIONS_INIT {			  	\
 		.type = REBASE_UNSPECIFIED,	  	\
 		.empty = EMPTY_UNSPECIFIED,	  	\
+		.state_dir = NULL, \
+		.upstream = NULL, \
+		.upstream_name = NULL, \
+		.upstream_arg = NULL, \
+		.head_name = NULL, \
+		.orig_head = {0}, \
+		.onto = NULL, \
+		.onto_name = NULL, \
+		.revisions = NULL, \
+		.switch_to = NULL, \
+		.root = 0, .root_with_onto = 0, \
+		.squash_onto = NULL, \
+		.restrict_revision = NULL, \
+		.dont_finish_rebase = 0, \
+		.action = NULL, \
+		.signoff = 0, \
+		.allow_rerere_autoupdate = 0, \
+		.gpg_sign_opt = NULL, \
+		.autosquash = 0, \
+		.cmd = NULL, \
+		.allow_empty_message = 0, \
+		.rebase_merges = 0, .rebase_cousins = 0, \
+		.strategy = NULL, \
+		.strategy_opts = NULL, \
+		.reschedule_failed_exec = 0, \
+		.use_legacy_rebase = 0, \
+		.reapply_cherry_picks = 0, \
 		.keep_empty = 1,			\
 		.default_backend = "merge",	  	\
 		.flags = REBASE_NO_QUIET, 		\
@@ -511,19 +538,19 @@ int cmd_rebase__interactive(int argc, const char **argv, const char *prefix)
 		OPT_CMDMODE(0, "add-exec-commands", &command,
 			N_("insert exec commands in todo list"), ACTION_ADD_EXEC),
 		{ OPTION_CALLBACK, 0, "onto", &opts.onto, N_("onto"), N_("onto"),
-		  PARSE_OPT_NONEG, parse_opt_commit, 0 },
+		  PARSE_OPT_NONEG, parse_opt_commit, 0, Z },
 		{ OPTION_CALLBACK, 0, "restrict-revision", &opts.restrict_revision,
 		  N_("restrict-revision"), N_("restrict revision"),
-		  PARSE_OPT_NONEG, parse_opt_commit, 0 },
+		  PARSE_OPT_NONEG, parse_opt_commit, 0, Z },
 		{ OPTION_CALLBACK, 0, "squash-onto", &squash_onto, N_("squash-onto"),
-		  N_("squash onto"), PARSE_OPT_NONEG, parse_opt_object_id, 0 },
+		  N_("squash onto"), PARSE_OPT_NONEG, parse_opt_object_id, 0, Z },
 		{ OPTION_CALLBACK, 0, "upstream", &opts.upstream, N_("upstream"),
 		  N_("the upstream commit"), PARSE_OPT_NONEG, parse_opt_commit,
-		  0 },
+		  0, Z },
 		OPT_STRING(0, "head-name", &opts.head_name, N_("head-name"), N_("head name")),
 		{ OPTION_STRING, 'S', "gpg-sign", &opts.gpg_sign_opt, N_("key-id"),
 			N_("GPG-sign commits"),
-			PARSE_OPT_OPTARG, NULL, (intptr_t) "" },
+			PARSE_OPT_OPTARG, NULL, (intptr_t) "", Z },
 		OPT_STRING(0, "strategy", &opts.strategy, N_("strategy"),
 			   N_("rebase strategy")),
 		OPT_STRING(0, "strategy-opts", &opts.strategy_opts, N_("strategy-opts"),
@@ -1315,7 +1342,7 @@ int cmd_rebase(int argc, const char **argv, const char *prefix)
 			REBASE_NO_QUIET | REBASE_VERBOSE | REBASE_DIFFSTAT),
 		{OPTION_NEGBIT, 'n', "no-stat", &options.flags, NULL,
 			N_("do not show diffstat of what changed upstream"),
-			PARSE_OPT_NOARG, NULL, REBASE_DIFFSTAT },
+			PARSE_OPT_NOARG, NULL, REBASE_DIFFSTAT, Z },
 		OPT_BOOL(0, "signoff", &options.signoff,
 			 N_("add a Signed-off-by: line to each commit")),
 		OPT_PASSTHRU_ARGV(0, "ignore-whitespace", &options.git_am_opts,
@@ -1379,7 +1406,7 @@ int cmd_rebase(int argc, const char **argv, const char *prefix)
 			    "squash!/fixup! under -i")),
 		{ OPTION_STRING, 'S', "gpg-sign", &gpg_sign, N_("key-id"),
 			N_("GPG-sign commits"),
-			PARSE_OPT_OPTARG, NULL, (intptr_t) "" },
+			PARSE_OPT_OPTARG, NULL, (intptr_t) "", Z },
 		OPT_AUTOSTASH(&options.autostash),
 		OPT_STRING_LIST('x', "exec", &exec, N_("exec"),
 				N_("add exec lines after each commit of the "
@@ -1391,7 +1418,7 @@ int cmd_rebase(int argc, const char **argv, const char *prefix)
 		{OPTION_STRING, 'r', "rebase-merges", &rebase_merges,
 			N_("mode"),
 			N_("try to rebase merges instead of skipping them"),
-			PARSE_OPT_OPTARG, NULL, (intptr_t)""},
+			PARSE_OPT_OPTARG, NULL, (intptr_t)"", Z},
 		OPT_BOOL(0, "fork-point", &fork_point,
 			 N_("use 'merge-base --fork-point' to refine upstream")),
 		OPT_STRING('s', "strategy", &options.strategy,

@@ -174,6 +174,7 @@ void setup_git_env(const char *git_dir)
 	struct set_gitdir_args args = { NULL };
 	struct argv_array to_free = ARGV_ARRAY_INIT;
 
+	memset(&args, 0, sizeof args);
 	args.commondir = getenv_safe(&to_free, GIT_COMMON_DIR_ENVIRONMENT);
 	args.object_dir = getenv_safe(&to_free, DB_ENVIRONMENT);
 	args.graft_file = getenv_safe(&to_free, GRAFT_ENVIRONMENT);

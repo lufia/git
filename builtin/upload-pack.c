@@ -30,6 +30,7 @@ int cmd_upload_pack(int argc, const char **argv, const char *prefix)
 		OPT_END()
 	};
 
+	memset(&opts, 0, sizeof opts);
 	packet_trace_identity("upload-pack");
 	read_replace_refs = 0;
 

@@ -386,6 +386,7 @@ void fmt_output_commit(struct strbuf *filename,
 	struct pretty_print_context ctx = {0};
 	struct strbuf subject = STRBUF_INIT;
 
+	memset(&ctx, 0, sizeof ctx);
 	format_commit_message(commit, "%f", &subject, &ctx);
 	fmt_output_subject(filename, subject.buf, info);
 	strbuf_release(&subject);
@@ -503,6 +504,7 @@ static void show_signature(struct rev_info *opt, struct commit *commit)
 	struct signature_check sigc = { 0 };
 	int status;
 
+	memset(&sigc, 0, sizeof sigc);
 	if (parse_signed_commit(commit, &payload, &signature) <= 0)
 		goto out;
 
@@ -551,6 +553,7 @@ static int show_one_mergetag(struct commit *commit,
 	int status, nth;
 	size_t payload_size;
 
+	memset(&sigc, 0, sizeof sigc);
 	hash_object_file(the_hash_algo, extra->value, extra->len,
 			 type_name(OBJ_TAG), &oid);
 	tag = lookup_tag(the_repository, &oid);
@@ -616,6 +619,7 @@ void show_log(struct rev_info *opt)
 	const char *extra_headers = opt->extra_headers;
 	struct pretty_print_context ctx = {0};
 
+	memset(&ctx, 0, sizeof ctx);
 	opt->loginfo = NULL;
 	if (!opt->verbose_header) {
 		graph_show_commit(opt->graph);

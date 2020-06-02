@@ -343,7 +343,7 @@ int read_key_without_echo(struct strbuf *buf)
 		 * half a second when we know that the sequence is complete.
 		 */
 		while (!is_known_escape_sequence(buf->buf)) {
-			struct pollfd pfd = { .fd = 0, .events = POLLIN };
+			struct pollfd pfd = { .fd = 0, .events = POLLIN, .revents = 0 };
 
 			if (poll(&pfd, 1, 500) < 1)
 				break;

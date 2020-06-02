@@ -448,6 +448,7 @@ static void collect_changes_cb(struct diff_queue_struct *q,
 	struct diffstat_t stat = { 0 };
 	int i;
 
+	memset(&stat, 0, sizeof stat);
 	if (!q->nr)
 		return;
 
@@ -516,6 +517,7 @@ static int get_modified_files(struct repository *r,
 	struct collection_status s = { 0 };
 	int i;
 
+	memset(&s, 0, sizeof s);
 	if (discard_index(r->index) < 0 ||
 	    repo_read_index_preload(r, ps, 0) < 0)
 		return error(_("could not read index"));
@@ -528,6 +530,7 @@ static int get_modified_files(struct repository *r,
 		struct rev_info rev;
 		struct setup_revision_opt opt = { 0 };
 
+		memset(&opt, 0, sizeof opt);
 		if (filter == INDEX_ONLY)
 			s.mode = (i == 0) ? FROM_INDEX : FROM_WORKTREE;
 		else
@@ -740,6 +743,7 @@ static int run_revert(struct add_i_state *s, const struct pathspec *ps,
 	struct tree *tree;
 	struct diff_options diffopt = { NULL };
 
+	memset(&diffopt, 0, sizeof diffopt);
 	if (get_modified_files(s->r, INDEX_ONLY, files, ps, NULL, NULL) < 0)
 		return -1;
 
@@ -818,6 +822,7 @@ static int get_untracked_files(struct repository *r,
 	size_t i;
 	struct strbuf buf = STRBUF_INIT;
 
+	memset(&dir, 0, sizeof dir);
 	if (repo_read_index(r) < 0)
 		return error(_("could not read index"));
 
@@ -938,6 +943,7 @@ static int run_patch(struct add_i_state *s, const struct pathspec *ps,
 		struct argv_array args = ARGV_ARRAY_INIT;
 		struct pathspec ps_selected = { 0 };
 
+		memset(&ps_selected, 0, sizeof ps_selected);
 		for (i = 0; i < files->items.nr; i++)
 			if (files->selected[i])
 				argv_array_push(&args,
@@ -1100,7 +1106,7 @@ int run_add_i(struct repository *r, const struct pathspec *ps)
 
 	struct print_file_item_data print_file_item_data = {
 		"%12s %12s %s", NULL, NULL,
-		STRBUF_INIT, STRBUF_INIT, STRBUF_INIT, STRBUF_INIT
+		STRBUF_INIT, STRBUF_INIT, STRBUF_INIT, STRBUF_INIT, 0
 	};
 	struct list_and_choose_options opts = {
 		{ 0, NULL, print_file_item, &print_file_item_data },
@@ -1111,6 +1117,7 @@ int run_add_i(struct repository *r, const struct pathspec *ps)
 	ssize_t i;
 	int res = 0;
 
+	memset(&s, 0, sizeof s);
 	for (i = 0; i < ARRAY_SIZE(command_list); i++) {
 		struct command_item *util = xcalloc(sizeof(*util), 1);
 		util->command = command_list[i].command;

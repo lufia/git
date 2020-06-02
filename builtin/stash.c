@@ -959,6 +959,7 @@ static int save_untracked_files(struct stash_info *info, struct strbuf *msg,
 	struct child_process cp_upd_index = CHILD_PROCESS_INIT;
 	struct index_state istate = { NULL };
 
+	memset(&istate, 0, sizeof istate);
 	cp_upd_index.git_cmd = 1;
 	argv_array_pushl(&cp_upd_index.args, "update-index", "-z", "--add",
 			 "--remove", "--stdin", NULL);
@@ -1000,6 +1001,7 @@ static int stash_patch(struct stash_info *info, const struct pathspec *ps,
 	struct index_state istate = { NULL };
 	char *old_index_env = NULL, *old_repo_index_file;
 
+	memset(&istate, 0, sizeof istate);
 	remove_path(stash_index_path.buf);
 
 	cp_read_tree.git_cmd = 1;
@@ -1061,6 +1063,7 @@ static int stash_working_tree(struct stash_info *info, const struct pathspec *ps
 	struct strbuf diff_output = STRBUF_INIT;
 	struct index_state istate = { NULL };
 
+	memset(&istate, 0, sizeof istate);
 	init_revisions(&rev, NULL);
 	copy_pathspec(&rev.prune_data, ps);
 

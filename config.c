@@ -40,7 +40,7 @@ struct config_source {
 	size_t total_len;
 	struct strbuf value;
 	struct strbuf var;
-	unsigned subsection_case_sensitive : 1;
+	unsigned subsection_case_sensitive;
 
 	int (*do_fgetc)(struct config_source *c);
 	int (*do_ungetc)(int c, struct config_source *conf);
@@ -1825,6 +1825,7 @@ void read_early_config(config_fn_t cb, void *data)
 	struct strbuf commondir = STRBUF_INIT;
 	struct strbuf gitdir = STRBUF_INIT;
 
+	memset(&opts, 0, sizeof opts);
 	opts.respect_includes = 1;
 
 	if (have_git_dir()) {
@@ -1857,6 +1858,7 @@ void read_very_early_config(config_fn_t cb, void *data)
 {
 	struct config_options opts = { 0 };
 
+	memset(&opts, 0, sizeof opts);
 	opts.respect_includes = 1;
 	opts.ignore_repo = 1;
 	opts.ignore_worktree = 1;
@@ -2087,6 +2089,7 @@ static void repo_read_config(struct repository *repo)
 {
 	struct config_options opts = { 0 };
 
+	memset(&opts, 0, sizeof opts);
 	opts.respect_includes = 1;
 	opts.commondir = repo->commondir;
 	opts.git_dir = repo->gitdir;
@@ -2410,7 +2413,7 @@ struct config_store_data {
 		int is_keys_section;
 	} *parsed;
 	unsigned int parsed_nr, parsed_alloc, *seen, seen_nr, seen_alloc;
-	unsigned int key_seen:1, section_seen:1, is_keys_section:1;
+	unsigned int key_seen, section_seen, is_keys_section;
 };
 
 static void config_store_data_clear(struct config_store_data *store)

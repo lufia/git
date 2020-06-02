@@ -238,6 +238,10 @@ int color_parse_mem(const char *value, int value_len, char *dst)
 	struct color fg = { COLOR_UNSPECIFIED };
 	struct color bg = { COLOR_UNSPECIFIED };
 
+	memset(&fg, 0, sizeof fg);
+	fg.type = COLOR_UNSPECIFIED;
+	memset(&bg, 0, sizeof bg);
+	bg.type = COLOR_UNSPECIFIED;
 	while (len > 0 && isspace(*ptr)) {
 		ptr++;
 		len--;
@@ -259,6 +263,8 @@ int color_parse_mem(const char *value, int value_len, char *dst)
 		struct color c = { COLOR_UNSPECIFIED };
 		int val, wordlen = 0;
 
+		memset(&c, 0, sizeof c);
+		c.type = COLOR_UNSPECIFIED;
 		while (len > 0 && !isspace(word[wordlen])) {
 			wordlen++;
 			len--;

@@ -39,6 +39,8 @@ static struct commit_list *paint_down_to_common(struct repository *r,
 	int i;
 	uint32_t last_gen = GENERATION_NUMBER_INFINITY;
 
+	memset(&queue, 0, sizeof queue);
+	queue.compare = compare_commits_by_gen_then_commit_date;
 	if (!min_generation)
 		queue.compare = compare_commits_by_commit_date;
 
@@ -489,6 +491,7 @@ static enum contains_result contains_tag_algo(struct commit *candidate,
 	uint32_t cutoff = GENERATION_NUMBER_INFINITY;
 	const struct commit_list *p;
 
+	memset(&contains_stack, 0, sizeof contains_stack);
 	for (p = want; p; p = p->next) {
 		struct commit *c = p->item;
 		load_commit_graph_info(the_repository, c);
@@ -717,6 +720,8 @@ struct commit_list *get_reachable_subset(struct commit **from, int nr_from,
 
 	struct prio_queue queue = { compare_commits_by_gen_then_commit_date };
 
+	memset(&queue, 0, sizeof queue);
+	queue.compare = compare_commits_by_gen_then_commit_date;
 	for (item = to; item < to_last; item++) {
 		struct commit *c = *item;
 

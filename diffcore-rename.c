@@ -191,6 +191,8 @@ static int estimate_similarity(struct repository *r,
 	};
 	struct prefetch_options prefetch_options = {r, skip_unmodified};
 
+	memset(&dpf_options, 0, sizeof dpf_options);
+	dpf_options.check_size_only = 1;
 	if (r == the_repository && has_promisor_remote()) {
 		dpf_options.missing_object_cb = prefetch;
 		dpf_options.missing_object_data = &prefetch_options;

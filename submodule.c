@@ -467,6 +467,7 @@ static void print_submodule_summary(struct repository *r, struct rev_info *rev, 
 
 	while ((commit = get_revision(rev))) {
 		struct pretty_print_context ctx = {0};
+		memset(&ctx, 0, sizeof ctx);
 		ctx.date_mode = rev->date_mode;
 		ctx.output_encoding = get_log_output_encoding();
 		strbuf_setlen(&sb, 0);

@@ -21,6 +21,8 @@ int cmd__prio_queue(int argc, const char **argv)
 {
 	struct prio_queue pq = { intcmp };
 
+	memset(&pq, 0, sizeof pq);
+	pq.compare = intcmp;
 	while (*++argv) {
 		if (!strcmp(*argv, "get")) {
 			void *peek = prio_queue_peek(&pq);
